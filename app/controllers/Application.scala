@@ -1,5 +1,7 @@
 package controllers
 
+import java.nio.ByteBuffer
+
 import play.api._
 import play.api.mvc._
 import play.api.Play.current
@@ -28,17 +30,21 @@ object Application extends Controller with MongoController {
     Ok(views.html.index())
   }
 
-  def watchRealtimeStream = WebSocket.using[JsValue] { request =>
+  def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
 
-    val in = Iteratee.foreach[JsValue] { json =>
-      println("received " + json)
-      collection.insert(json)
-    }
+    val in = Iteratee.ignore[Array[Byte]]
 
     // Enumerates the capped collection
     val out = {
-      val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50552)), QueryOpts().tailable.awaitData)
-      cursor.enumerate
+      val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50452)), QueryOpts().tailable.awaitData)
+      cursor.enumerate.map { jsValue =>
+        val value =   (jsValue \ "value").asInstanceOf[JsNumber].value.doubleValue
+        val address = (jsValue \ "address").asInstanceOf[JsNumber].value.shortValue
+        val bb = ByteBuffer.allocate(2+8)
+        bb.putShort(address)
+        bb.putDouble(value)
+        bb.array
+      }
     }
 
     // We're done!
