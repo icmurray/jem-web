@@ -21,15 +21,19 @@ import play.api.libs.json._
 
 import domain.SystemStatus
 
+import service.SystemService
+
 object Application extends Controller with MongoController {
-  
+ 
+  private val systemService = SystemService
+
   lazy val db = ReactiveMongoPlugin.db
   lazy val collection = db("realtime")
   //lazy val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50562)), QueryOpts().tailable.awaitData)
   //lazy val cursor = collection.find(Json.obj(), QueryOpts().tailable.awaitData)
 
   def index = Action {
-    Ok(views.html.index(SystemStatus(true)))
+    Ok(views.html.index(systemService.status))
   }
 
   def realtime = Action {
