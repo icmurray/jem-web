@@ -1,4 +1,16 @@
+@(status: domain.SystemStatus)
+
 @main(title = "Home") {
-<h1>Welcome!</h1>
-<p>Stuff goes here, normally</p>
+
+<h1>System Status</h1>
+
+@if(status.running) {
+  <p>The system is currently recording data.</p>
+  <button class="btn btn-large btn-danger" type="button">Stop Recording Data</button>
+} else {
+  <p>The system is not recording any data right now.</p>
+  <button class="btn btn-large btn-primary" type="button">Start Recording Data</button>
+}
+
+
 }

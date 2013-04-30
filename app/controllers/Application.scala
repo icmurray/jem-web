@@ -19,15 +19,17 @@ import play.modules.reactivemongo.PlayBsonImplicits._
 // Play Json imports
 import play.api.libs.json._
 
+import domain.SystemStatus
+
 object Application extends Controller with MongoController {
   
-  val db = ReactiveMongoPlugin.db
+  lazy val db = ReactiveMongoPlugin.db
   lazy val collection = db("realtime")
   //lazy val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50562)), QueryOpts().tailable.awaitData)
   //lazy val cursor = collection.find(Json.obj(), QueryOpts().tailable.awaitData)
 
   def index = Action {
-    Ok(views.html.index())
+    Ok(views.html.index(SystemStatus(true)))
   }
 
   def realtime = Action {
@@ -35,7 +37,6 @@ object Application extends Controller with MongoController {
   }
 
   def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
-
     val in = Iteratee.ignore[Array[Byte]]
 
     // Enumerates the capped collection
