@@ -36,7 +36,7 @@ object Application extends Controller with MongoController {
     Ok(views.html.index(systemService.status))
   }
 
-  def realtime = Action {
+  def realtime = Action { implicit r: RequestHeader =>
     Ok(views.html.realtime(systemService.status))
   }
 

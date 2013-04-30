@@ -1,4 +1,3 @@
-var wsUri = "ws://127.0.0.1:9000/realtime-ws";
 var output;
 var tds = {};
 var gauges = {};
