@@ -37,7 +37,7 @@ object Application extends Controller with MongoController {
   }
 
   def realtime = Action {
-    Ok(views.html.realtime())
+    Ok(views.html.realtime(systemService.status))
   }
 
   def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
