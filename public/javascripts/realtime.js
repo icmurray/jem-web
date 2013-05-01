@@ -1,7 +1,10 @@
-var output;
-var tds = {};
-var gauges = {};
-var charts = {};
+var Jem = Jem || {};
+Jem.realtime = Jem.realtime || {};
+
+Jem.realtime.valueLabels = {};
+Jem.realtime.gauges = {};
+Jem.realtime.charts = {};
+
 var gaugeOpts = {
 lines: 12, // The number of lines to draw
        angle: 0.15, // The length of each line
@@ -18,80 +21,76 @@ colorStart: '#11CF2A',   // Colors
 };
 
 function init() {
-  output = document.getElementById("output"); testWebSocket();
-  //document.getElementById("message").addEventListener("submit", function(evt) {
-  //	var title = document.getElementById("title")
-  //	var content = document.getElementById("content")
-  //	console.log(title.value, content.value)
-  //	websocket.send(JSON.stringify({title: title.value, content: content.value}))
-  //	evt.stopPropagation()
-  //	evt.preventDefault()
-  //})
+  Jem.realtime.registerTemplate = Handlebars.compile($('#register-template').html());
+  Jem.realtime.meters = document.getElementById("meters");
+  testWebSocket();
 }
+
 function testWebSocket() {
-  websocket = new WebSocket(wsUri);
-  websocket.binaryType = "arraybuffer";
-  websocket.onopen = function(evt) { onOpen(evt) };
-  websocket.onclose = function(evt) { onClose(evt) };
-  websocket.onmessage = function(evt) { onMessage(evt) };
-  websocket.onerror = function(evt) { onError(evt) };
+  Jem.realtime.websocket = new WebSocket(Jem.realtime.wsUri);
+  Jem.realtime.websocket.binaryType = "arraybuffer";
+  Jem.realtime.websocket.onopen = function(evt) { onOpen(evt) };
+  Jem.realtime.websocket.onclose = function(evt) { onClose(evt) };
+  Jem.realtime.websocket.onmessage = function(evt) { onMessage(evt) };
+  Jem.realtime.websocket.onerror = function(evt) { onError(evt) };
 }
+
 function onOpen(evt) {}
-function onClose(evt) { /*writeToScreen("DISCONNECTED");*/ }
+function onClose(evt) {}
+
 function onMessage(evt) {
-  //writeToScreen(JSON.parse(evt.data));
   var d = new DataView(evt.data);
   writeToScreen(d);
 }
-function onError(evt) { writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data); }
-function doSend(message) { writeToScreen("SENT: " + message);  websocket.send(message); }
+
+function onError(evt) {}
+function doSend(message) {}
+
 function writeToScreen(message) {
 
   var address = message.getUint16(0, false);
   var value   = message.getFloat64(2, false)
 
-    if (address in tds) {
-      var td = tds[address];
-      td.innerHTML = value;
-      gauges[address].set(value);
-      //charts[address].append(new Date().getTime(), value);
-    } else if (address >= 50462) {
+    if (address in Jem.realtime.valueLabels) {
+      Jem.realtime.valueLabels[address].innerHTML = value;
+      Jem.realtime.gauges[address].set(value);
+      //Jem.realtime.charts[address].append(new Date().getTime(), value);
+    } else {
 
-      var tr = document.createElement("tr");
-      var th = document.createElement("th");
-      var td = document.createElement("td");
-      var canvas = document.createElement("canvas");
-      canvas.width=100;
-      canvas.height=50;
-      var gauge = new Gauge(canvas).setOptions(gaugeOpts);
+      var templateContext = {
+        address: address,
+        value: value
+      };
+
+      var htmlString = Jem.realtime.registerTemplate(templateContext);
+      var html = $.parseHTML(htmlString.trim())[0];
+      var gaugeCanvas = $(html).find('canvas.gauge')[0];
+      var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
       gauge.maxValue = 20;
       gauge.minValue = 0;
-      gauge.animationSpeed =8;
+      gauge.animationSpeed = 8;
       gauge.set(value);
 
-      var chartCanvas = document.createElement("canvas");
-      chartCanvas.width=400;
-      chartCanvas.height=50;
-      var chart = new SmoothieChart({
-maxValue: 20,
-minValue: 0
-});
-//chart.streamTo(chartCanvas,600);
-var chartLine = new TimeSeries();
-chart.addTimeSeries(chartLine);
-charts[address] = chartLine;
-chartLine.append(new Date().getTime(), value);
+      var valueLabel = $(html).find('.register-value-label')[0];
 
-tds[address] = td;
-gauges[address] = gauge;
-td.innerHTML = value;
-th.innerHTML = address;
-tr.insertBefore(chartCanvas, tr.firstChild);
-tr.insertBefore(canvas, tr.firstChild);
-//tr.insertBefore(td, tr.firstChild);
-tr.insertBefore(th, tr.firstChild);
-output.insertBefore(tr, output.firstChild);
-}
+      Jem.realtime.gauges[address] = gauge;
+      Jem.realtime.valueLabels[address] = valueLabel;
+
+      Jem.realtime.meters.insertBefore(html, Jem.realtime.meters.firstChild);
+      //var chartCanvas = document.createElement("canvas");
+      //chartCanvas.width=400;
+      //chartCanvas.height=50;
+      //var chart = new SmoothieChart({
+      //  maxValue: 20,
+      //  minValue: 0
+      //});
+      //chart.streamTo(chartCanvas,600);
+      //var chartLine = new TimeSeries();
+      //chart.addTimeSeries(chartLine);
+      //charts[address] = chartLine;
+      //chartLine.append(new Date().getTime(), value);
+
+  }
 
 }
 window.addEventListener("load", init, false);
