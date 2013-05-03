@@ -40,16 +40,20 @@ function onClose(evt) {}
 
 function onMessage(evt) {
   var d = new DataView(evt.data);
-  writeToScreen(d);
+  var numDataPoints = d.getUint32(0, false);
+  var i = 0;
+  while (i < numDataPoints) {
+    var address = d.getUint16(4 + i*6, false);
+    var value = d.getUint32(6 + i*6, false);
+    writeToScreen(address, value);
+    i += 1;
+  }
 }
 
 function onError(evt) {}
 function doSend(message) {}
 
-function writeToScreen(message) {
-
-  var address = message.getUint16(0, false);
-  var value   = message.getFloat64(2, false)
+function writeToScreen(address, value) {
 
     if (address in Jem.realtime.valueLabels) {
       Jem.realtime.valueLabels[address].innerHTML = value;
@@ -66,7 +70,7 @@ function writeToScreen(message) {
       var html = $.parseHTML(htmlString.trim())[0];
       var gaugeCanvas = $(html).find('canvas.gauge')[0];
       var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
-      gauge.maxValue = 20;
+      gauge.maxValue = 40;
       gauge.minValue = 0;
       gauge.animationSpeed = 8;
       gauge.set(value);

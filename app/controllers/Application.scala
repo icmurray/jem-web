@@ -44,16 +44,29 @@ object Application extends Controller with MongoController {
   def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
     // Enumerates the capped collection
     //val cursor = collection.find(BSONDocument("address" -> BSONDocument("$gt" -> 50452)), QueryOpts().tailable.awaitData)
-    val cursor = collection.find(BSONDocument("address" -> BSONDocument("$gt" -> 50452))).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
+    //val cursor = collection.find(BSONDocument("address" -> BSONDocument("$gt" -> 50452))).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
+    val cursor = collection.find(BSONDocument()).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
     val out = cursor.enumerate.map { bson =>
-      val value = bson.getAs[Int]("value").get.asInstanceOf[Double]
-      val address = bson.getAs[Int]("address").get.asInstanceOf[Short]
-      //val value =   (bson \ "value").asInstanceOf[JsNumber].value.doubleValue
-      //val address = (bson \ "address").asInstanceOf[JsNumber].value.shortValue
-      val bb = ByteBuffer.allocate(2+8)
-      bb.putShort(address)
-      bb.putDouble(value)
-      bb.array
+
+      try {
+        val values = bson.getAs[BSONArray]("values").get
+        val bb = ByteBuffer.allocate(4 + (2+4) * values.length)
+        bb.putInt(values.length)
+
+        var i = 0
+        while (i < values.length) {
+          val bsonAry = values.getAs[BSONArray](i).get
+          val address = bsonAry.getAs[Int](0).get
+          val value   = bsonAry.getAs[Int](1).get
+          bb.putShort(address.asInstanceOf[Short])
+          bb.putInt(value)
+          i += 1
+        }
+
+        bb.array
+      } catch {
+        case e: Throwable => println(e) ; throw e
+      }
     }
 
     val in = Iteratee.ignore[Array[Byte]].mapDone { _ =>
