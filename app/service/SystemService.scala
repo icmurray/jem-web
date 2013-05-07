@@ -1,17 +1,18 @@
 package service
 
-import scala.concurrent.{Future, ExecutionContext}
+import scala.concurrent.{Future, ExecutionContext, future}
 
 import com.typesafe.config._
 
 import play.api.libs.ws.WS
 
-import domain.SystemStatus
+import domain.{SystemStatus, Device, Gateway}
 
 trait SystemService {
   def status(implicit ec: ExecutionContext): Future[SystemStatus]
   def start(implicit ec: ExecutionContext): Future[Unit]
   def stop(implicit ec: ExecutionContext): Future[Unit]
+  def attachedDevices(implicit ec: ExecutionContext): Future[List[Device]]
 }
 
 object SystemService extends SystemService {
@@ -23,7 +24,11 @@ object SystemService extends SystemService {
   private val startUrl  = backendUrl + "/system-control/start"
   private val stopUrl   = backendUrl + "/system-control/stop"
 
-  private var running = false
+  override def attachedDevices(implicit ec: ExecutionContext) = future {
+    List(
+      Device(unit=1, gateway=Gateway("127.0.0.1", 502))
+    )
+  }
 
   def status(implicit ec: ExecutionContext) = {
     WS.url(statusUrl).get().map { response =>

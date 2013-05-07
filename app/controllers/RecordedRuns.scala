@@ -7,18 +7,17 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import play.api.Play.current
 
+import domain.{Device, Gateway}
 import service.SystemService
 
-case class Gateway(host: String, port: Int)
-case class Device(unit: Int, gateway: Gateway)
 case class TableSelection(
   device: Device,
-  table1: Boolean,
-  table2: Boolean,
-  table3: Boolean,
-  table4: Boolean,
-  table5: Boolean,
-  table6: Boolean)
+  table1: Boolean = true,
+  table2: Boolean = true,
+  table3: Boolean = true,
+  table4: Boolean = true,
+  table5: Boolean = true,
+  table6: Boolean = true)
 
 trait RecordedRuns extends Controller
                              with ControllerUtilities {
@@ -44,7 +43,13 @@ trait RecordedRuns extends Controller
   def systemService: SystemService
 
   def index = Action { implicit request =>
-    Ok(views.html.recordedRuns(createRunForm))
+    Async {
+      systemService.attachedDevices.map { devices =>
+        val device = devices.head
+        val form = createRunForm.fill(TableSelection(device=device))
+        Ok(views.html.recordedRuns(form))
+      }
+    }
   }
 
   def create = Action { implicit request =>

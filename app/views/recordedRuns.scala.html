@@ -8,9 +8,10 @@
 there's nothing to see.</p>
 
 @helper.form(action = routes.RecordedRuns.create) {
-  @helper.inputText(form("device.gateway.host"))
-  @helper.inputText(form("device.gateway.port"))
-  @helper.inputText(form("device.unit"))
+
+  @helper.inputText(form("device.gateway.host"), 'type -> "hidden")
+  @helper.inputText(form("device.gateway.port"), 'type -> "hidden")
+  @helper.inputText(form("device.unit"), 'type -> "hidden")
   @helper.checkbox(form("table1"))
   @helper.checkbox(form("table2"))
   @helper.checkbox(form("table3"))
