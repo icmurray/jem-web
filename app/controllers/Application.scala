@@ -24,21 +24,34 @@ import domain.SystemStatus
 
 import service.SystemService
 
-object Application extends Controller with MongoController {
+object Application extends Controller
+                   with MongoController
+                   with ControllerUtilities {
  
   private val systemService = SystemService
-
   override lazy val db = ReactiveMongoPlugin.db
   lazy val collection = db("realtime")
   //lazy val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50562)), QueryOpts().tailable.awaitData)
   //lazy val cursor = collection.find(Json.obj(), QueryOpts().tailable.awaitData)
 
   def index = Action {
-    Ok(views.html.index(systemService.status))
+    Async {
+      systemService.status.map { status =>
+        Ok(views.html.index(status))
+      } recover {
+        case t => backendIsDownResponse
+      }
+    }
   }
 
   def realtime = Action { implicit r: RequestHeader =>
-    Ok(views.html.realtime(systemService.status))
+    Async {
+      systemService.status.map { status =>
+        Ok(views.html.realtime(status))
+      } recover {
+        case t => backendIsDownResponse
+      }
+    }
   }
 
   def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
