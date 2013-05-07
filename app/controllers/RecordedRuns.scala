@@ -10,7 +10,7 @@ import play.api.Play.current
 import domain.{Device, Gateway}
 import service.SystemService
 
-case class TableSelection(
+case class SingleTableSelection(
   device: Device,
   table1: Boolean = true,
   table2: Boolean = true,
@@ -19,25 +19,33 @@ case class TableSelection(
   table5: Boolean = true,
   table6: Boolean = true)
 
+case class TableSelectionFormData(
+  selections: List[SingleTableSelection]
+)
+
 trait RecordedRuns extends Controller
                              with ControllerUtilities {
 
   val createRunForm = Form(
     mapping(
-      "device" -> mapping(
-        "unit" -> number,
-        "gateway" -> mapping(
-          "host" -> text,
-          "port" -> number
-        )(Gateway.apply)(Gateway.unapply)
-      )(Device.apply)(Device.unapply),
-      "table1" -> boolean,
-      "table2" -> boolean,
-      "table3" -> boolean,
-      "table4" -> boolean,
-      "table5" -> boolean,
-      "table6" -> boolean
-    )(TableSelection.apply)(TableSelection.unapply)
+      "selections" -> list(
+        mapping(
+          "device" -> mapping(
+            "unit" -> number,
+            "gateway" -> mapping(
+              "host" -> text,
+              "port" -> number
+            )(Gateway.apply)(Gateway.unapply)
+          )(Device.apply)(Device.unapply),
+          "table1" -> boolean,
+          "table2" -> boolean,
+          "table3" -> boolean,
+          "table4" -> boolean,
+          "table5" -> boolean,
+          "table6" -> boolean
+        )(SingleTableSelection.apply)(SingleTableSelection.unapply)
+      )
+    )(TableSelectionFormData.apply)(TableSelectionFormData.unapply)
   )
 
   def systemService: SystemService
@@ -45,8 +53,9 @@ trait RecordedRuns extends Controller
   def index = Action { implicit request =>
     Async {
       systemService.attachedDevices.map { devices =>
-        val device = devices.head
-        val form = createRunForm.fill(TableSelection(device=device))
+        val form = createRunForm.fill(
+          TableSelectionFormData(devices.map(device => SingleTableSelection(device=device)))
+        )
         Ok(views.html.recordedRuns(form))
       }
     }

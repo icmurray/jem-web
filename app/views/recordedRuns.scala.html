@@ -1,4 +1,4 @@
-@(form: Form[TableSelection])(implicit flash: Flash)
+@(form: Form[TableSelectionFormData])(implicit flash: Flash)
 
 @main(title = "Recorded Runs") {
 
@@ -9,15 +9,18 @@ there's nothing to see.</p>
 
 @helper.form(action = routes.RecordedRuns.create) {
 
-  @helper.inputText(form("device.gateway.host"), 'type -> "hidden")
-  @helper.inputText(form("device.gateway.port"), 'type -> "hidden")
-  @helper.inputText(form("device.unit"), 'type -> "hidden")
-  @helper.checkbox(form("table1"))
-  @helper.checkbox(form("table2"))
-  @helper.checkbox(form("table3"))
-  @helper.checkbox(form("table4"))
-  @helper.checkbox(form("table5"))
-  @helper.checkbox(form("table6"))
+  @helper.repeat(form("selections"), min=0) { tableSelection =>
+    @helper.inputText(tableSelection("device.gateway.host"), 'type -> "hidden")
+    @helper.inputText(tableSelection("device.gateway.port"), 'type -> "hidden")
+    @helper.inputText(tableSelection("device.unit"), 'type -> "hidden")
+    @helper.checkbox(tableSelection("table1"))
+    @helper.checkbox(tableSelection("table2"))
+    @helper.checkbox(tableSelection("table3"))
+    @helper.checkbox(tableSelection("table4"))
+    @helper.checkbox(tableSelection("table5"))
+    @helper.checkbox(tableSelection("table6"))
+  }
+
 
   <button type="submit" name="submit-form" value="create">Create</button>
 }

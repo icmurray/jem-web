@@ -26,7 +26,9 @@ object SystemService extends SystemService {
 
   override def attachedDevices(implicit ec: ExecutionContext) = future {
     List(
-      Device(unit=1, gateway=Gateway("127.0.0.1", 502))
+      Device(unit=1, gateway=Gateway("127.0.0.1", 502)),
+      Device(unit=2, gateway=Gateway("127.0.0.1", 502)),
+      Device(unit=1, gateway=Gateway("192.168.0.191", 5020))
     )
   }
 
