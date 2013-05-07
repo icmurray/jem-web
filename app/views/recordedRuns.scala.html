@@ -6,6 +6,13 @@
   <input type="hidden" name="@field.name" id="@field.id" value="@field.value">
 }
 
+@checkbox(field: Field, args: (Symbol, Any)*) = {
+  <label class="checkbox inline">
+    <input type="checkbox" id="@field.id" name="@field.name" value="true" @(if(field.value == Some("true")) "checked" else "")>
+    @args.toMap.getOrElse('_label, field.id)
+  </label>
+}
+
 @main(title = "Recorded Runs") {
 
 <h1>Recorded Runs</h1>
@@ -25,12 +32,17 @@ there's nothing to see.</p>
       @hidden(tableSelection("device.gateway.port"))
       @hidden(tableSelection("device.unit"))
 
-      @helper.checkbox(tableSelection("table1"), '_labelClass -> "checkbox", '_labelInside -> true)
-      @helper.checkbox(tableSelection("table2"), '_labelClass -> "checkbox", '_labelInside -> true)
-      @helper.checkbox(tableSelection("table3"), '_labelClass -> "checkbox", '_labelInside -> true)
-      @helper.checkbox(tableSelection("table4"), '_labelClass -> "checkbox", '_labelInside -> true)
-      @helper.checkbox(tableSelection("table5"), '_labelClass -> "checkbox", '_labelInside -> true)
-      @helper.checkbox(tableSelection("table6"), '_labelClass -> "checkbox", '_labelInside -> true)
+      <div class="control-group">
+        <label class="control-label">Tables to record:</label>
+        <div class="controls">
+          @checkbox(tableSelection("table1"), '_label -> "Table 1", '_help -> "Help with Table 1")
+          @checkbox(tableSelection("table2"), '_label -> "Table 2")
+          @checkbox(tableSelection("table3"), '_label -> "Table 3")
+          @checkbox(tableSelection("table4"), '_label -> "Table 4")
+          @checkbox(tableSelection("table5"), '_label -> "Table 5")
+          @checkbox(tableSelection("table6"), '_label -> "Table 6")
+        </div>
+      </div>
 
     </div>
   }

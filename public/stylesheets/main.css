@@ -17,3 +17,7 @@
 .thumbnail canvas {
   width: 100%;
 }
+
+.checkbox.inline {
+  padding-right: 20px;
+}
