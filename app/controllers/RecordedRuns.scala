@@ -7,21 +7,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import play.api.Play.current
 
-import domain.{Device, Gateway}
+import domain.{Device, Gateway, RecordedRunConfiguration, ConfiguredDevice}
 import service.SystemService
-
-case class ConfiguredDevice(
-  device: Device,
-  table1: Boolean = true,
-  table2: Boolean = true,
-  table3: Boolean = true,
-  table4: Boolean = true,
-  table5: Boolean = true,
-  table6: Boolean = true)
-
-case class RecordedRunConfiguration(
-  selections: List[ConfiguredDevice]
-)
 
 trait RecordedRuns extends Controller
                              with ControllerUtilities {
