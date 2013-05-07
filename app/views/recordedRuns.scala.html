@@ -15,16 +15,22 @@ there's nothing to see.</p>
 
   @helper.repeat(form("selections"), min=0) { tableSelection =>
 
-    @hidden(tableSelection("device.gateway.host"))
-    @hidden(tableSelection("device.gateway.port"))
-    @hidden(tableSelection("device.unit"))
+    <div class="well well-large">
 
-    @helper.checkbox(tableSelection("table1"))
-    @helper.checkbox(tableSelection("table2"))
-    @helper.checkbox(tableSelection("table3"))
-    @helper.checkbox(tableSelection("table4"))
-    @helper.checkbox(tableSelection("table5"))
-    @helper.checkbox(tableSelection("table6"))
+      <h3>Unit @tableSelection("device.unit").value on @tableSelection("device.gateway.host").value:@tableSelection("device.gateway.port").value</h3>
+
+      @hidden(tableSelection("device.gateway.host"))
+      @hidden(tableSelection("device.gateway.port"))
+      @hidden(tableSelection("device.unit"))
+
+      @helper.checkbox(tableSelection("table1"))
+      @helper.checkbox(tableSelection("table2"))
+      @helper.checkbox(tableSelection("table3"))
+      @helper.checkbox(tableSelection("table4"))
+      @helper.checkbox(tableSelection("table5"))
+      @helper.checkbox(tableSelection("table6"))
+
+    </div>
   }
 
 
