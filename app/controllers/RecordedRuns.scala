@@ -1,5 +1,7 @@
 package controllers
 
+import scala.concurrent.future
+
 import play.api._
 import play.api.data._
 import play.api.data.Forms._
@@ -41,7 +43,9 @@ trait RecordedRuns extends Controller
     Async {
       systemService.attachedDevices.map { devices =>
         val form = createRunForm.fill(
-          RecordedRunConfiguration(devices.map(device => ConfiguredDevice(device=device)))
+          RecordedRunConfiguration(
+            devices.map(device => ConfiguredDevice(device=device))
+          )
         )
         Ok(views.html.recordedRuns(form))
       }
@@ -49,14 +53,23 @@ trait RecordedRuns extends Controller
   }
 
   def create = Action { implicit request =>
-    createRunForm.bindFromRequest.fold(
-      errors => BadRequest(views.html.recordedRuns(errors)),
-      value  => {
-        Redirect(routes.RecordedRuns.index).flashing(
-          "success" -> ("Successfully created: " + value.toString)
-        )
-      }
-    )
+    Async {
+      createRunForm.bindFromRequest.fold(
+        formErrors     => future {
+          BadRequest(views.html.recordedRuns(formErrors))
+        },
+
+        configuration  => {
+          systemService.startRecordedRun(configuration).map { _ =>
+            Redirect(routes.Application.index).flashing(
+              "success" -> ("Successfully started new recording.")
+            )
+          } recover {
+            case t => backendIsDownResponse
+          }
+        }
+      )
+    }
   }
 }
 
