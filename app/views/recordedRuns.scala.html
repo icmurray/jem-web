@@ -1,5 +1,9 @@
 @(form: Form[TableSelectionFormData])(implicit flash: Flash)
 
+@hidden(field: Field) = {
+  <input type="hidden" name="@field.name" id="@field.id" value="@field.value">
+}
+
 @main(title = "Recorded Runs") {
 
 <h1>Recorded Runs</h1>
@@ -10,9 +14,11 @@ there's nothing to see.</p>
 @helper.form(action = routes.RecordedRuns.create) {
 
   @helper.repeat(form("selections"), min=0) { tableSelection =>
-    @helper.inputText(tableSelection("device.gateway.host"), 'type -> "hidden")
-    @helper.inputText(tableSelection("device.gateway.port"), 'type -> "hidden")
-    @helper.inputText(tableSelection("device.unit"), 'type -> "hidden")
+
+    @hidden(tableSelection("device.gateway.host"))
+    @hidden(tableSelection("device.gateway.port"))
+    @hidden(tableSelection("device.unit"))
+
     @helper.checkbox(tableSelection("table1"))
     @helper.checkbox(tableSelection("table2"))
     @helper.checkbox(tableSelection("table3"))
