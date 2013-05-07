@@ -34,7 +34,7 @@ object Application extends Controller
   //lazy val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50562)), QueryOpts().tailable.awaitData)
   //lazy val cursor = collection.find(Json.obj(), QueryOpts().tailable.awaitData)
 
-  def index = Action {
+  def index = Action { implicit request =>
     Async {
       systemService.status.map { status =>
         Ok(views.html.index(status))

@@ -17,7 +17,9 @@ trait SystemController extends Controller
   def start = Action {
     Async {
       systemService.start.map { _ =>
-        Redirect(routes.Application.index)
+        Redirect(routes.Application.index).flashing(
+          "success" -> "Recording Data"
+        )
       } recover {
         case t => backendIsDownResponse
       }
@@ -27,7 +29,9 @@ trait SystemController extends Controller
   def stop = Action {
     Async {
       systemService.stop.map { _ =>
-        Redirect(routes.Application.index)
+        Redirect(routes.Application.index).flashing(
+          "success" -> "Stopped Recording Data"
+        )
       } recover {
         case t => backendIsDownResponse
       }

@@ -1,4 +1,4 @@
-@(title: String)(content: Html)
+@(title: String)(content: Html)(implicit flash: Flash)
 
 <!DOCTYPE html>
 
@@ -42,6 +42,14 @@
 
         <!-- Content -->
         <div class="span10">
+
+          @flash.get("success").map { msg =>
+            <div class="alert alert-success">
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+              <strong>Success!</strong> @msg
+            </div>
+          }
+
           @content
         </div>
 
