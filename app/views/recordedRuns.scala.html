@@ -1,5 +1,7 @@
 @(form: Form[TableSelectionFormData])(implicit flash: Flash)
 
+@import views.helper.bootstrap2._
+
 @hidden(field: Field) = {
   <input type="hidden" name="@field.name" id="@field.id" value="@field.value">
 }
@@ -11,7 +13,7 @@
 <p>Here we will list a bunch of previously recorded runs.  For now
 there's nothing to see.</p>
 
-@helper.form(action = routes.RecordedRuns.create) {
+@helper.form(action = routes.RecordedRuns.create, 'class -> "form-horizontal") {
 
   @helper.repeat(form("selections"), min=0) { tableSelection =>
 
@@ -23,12 +25,12 @@ there's nothing to see.</p>
       @hidden(tableSelection("device.gateway.port"))
       @hidden(tableSelection("device.unit"))
 
-      @helper.checkbox(tableSelection("table1"))
-      @helper.checkbox(tableSelection("table2"))
-      @helper.checkbox(tableSelection("table3"))
-      @helper.checkbox(tableSelection("table4"))
-      @helper.checkbox(tableSelection("table5"))
-      @helper.checkbox(tableSelection("table6"))
+      @helper.checkbox(tableSelection("table1"), '_labelClass -> "checkbox", '_labelInside -> true)
+      @helper.checkbox(tableSelection("table2"), '_labelClass -> "checkbox", '_labelInside -> true)
+      @helper.checkbox(tableSelection("table3"), '_labelClass -> "checkbox", '_labelInside -> true)
+      @helper.checkbox(tableSelection("table4"), '_labelClass -> "checkbox", '_labelInside -> true)
+      @helper.checkbox(tableSelection("table5"), '_labelClass -> "checkbox", '_labelInside -> true)
+      @helper.checkbox(tableSelection("table6"), '_labelClass -> "checkbox", '_labelInside -> true)
 
     </div>
   }
