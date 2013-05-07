@@ -1,0 +1,24 @@
+@(form: Form[TableSelection])(implicit flash: Flash)
+
+@main(title = "Recorded Runs") {
+
+<h1>Recorded Runs</h1>
+
+<p>Here we will list a bunch of previously recorded runs.  For now
+there's nothing to see.</p>
+
+@helper.form(action = routes.RecordedRuns.create) {
+  @helper.inputText(form("device.gateway.host"))
+  @helper.inputText(form("device.gateway.port"))
+  @helper.inputText(form("device.unit"))
+  @helper.checkbox(form("table1"))
+  @helper.checkbox(form("table2"))
+  @helper.checkbox(form("table3"))
+  @helper.checkbox(form("table4"))
+  @helper.checkbox(form("table5"))
+  @helper.checkbox(form("table6"))
+
+  <button type="submit" name="submit-form" value="create">Create</button>
+}
+
+}
