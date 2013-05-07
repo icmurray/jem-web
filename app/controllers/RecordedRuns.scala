@@ -10,7 +10,7 @@ import play.api.Play.current
 import domain.{Device, Gateway}
 import service.SystemService
 
-case class SingleTableSelection(
+case class ConfiguredDevice(
   device: Device,
   table1: Boolean = true,
   table2: Boolean = true,
@@ -19,8 +19,8 @@ case class SingleTableSelection(
   table5: Boolean = true,
   table6: Boolean = true)
 
-case class TableSelectionFormData(
-  selections: List[SingleTableSelection]
+case class RecordedRunConfiguration(
+  selections: List[ConfiguredDevice]
 )
 
 trait RecordedRuns extends Controller
@@ -43,9 +43,9 @@ trait RecordedRuns extends Controller
           "table4" -> boolean,
           "table5" -> boolean,
           "table6" -> boolean
-        )(SingleTableSelection.apply)(SingleTableSelection.unapply)
+        )(ConfiguredDevice.apply)(ConfiguredDevice.unapply)
       )
-    )(TableSelectionFormData.apply)(TableSelectionFormData.unapply)
+    )(RecordedRunConfiguration.apply)(RecordedRunConfiguration.unapply)
   )
 
   def systemService: SystemService
@@ -54,7 +54,7 @@ trait RecordedRuns extends Controller
     Async {
       systemService.attachedDevices.map { devices =>
         val form = createRunForm.fill(
-          TableSelectionFormData(devices.map(device => SingleTableSelection(device=device)))
+          RecordedRunConfiguration(devices.map(device => ConfiguredDevice(device=device)))
         )
         Ok(views.html.recordedRuns(form))
       }
