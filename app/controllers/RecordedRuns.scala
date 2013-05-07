@@ -9,30 +9,30 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import play.api.Play.current
 
-import domain.{Device, Gateway, RecordedRunConfiguration, ConfiguredDevice}
+import domain.{RecordedRunConfiguration, ConfiguredDevice, ConfiguredGateway}
 import service.SystemService
 
 trait RecordedRuns extends Controller
-                             with ControllerUtilities {
+                   with ControllerUtilities {
 
   val createRunForm = Form(
     mapping(
       "selections" -> list(
         mapping(
-          "device" -> mapping(
-            "unit" -> number,
-            "gateway" -> mapping(
-              "host" -> text,
-              "port" -> number
-            )(Gateway.apply)(Gateway.unapply)
-          )(Device.apply)(Device.unapply),
-          "table1" -> boolean,
-          "table2" -> boolean,
-          "table3" -> boolean,
-          "table4" -> boolean,
-          "table5" -> boolean,
-          "table6" -> boolean
-        )(ConfiguredDevice.apply)(ConfiguredDevice.unapply)
+          "host"    -> text,
+          "port"    -> number,
+          "devices" -> list(
+            mapping(
+              "unit"   -> number,
+              "table1" -> boolean,
+              "table2" -> boolean,
+              "table3" -> boolean,
+              "table4" -> boolean,
+              "table5" -> boolean,
+              "table6" -> boolean
+            )(ConfiguredDevice.apply)(ConfiguredDevice.unapply)
+          )
+        )(ConfiguredGateway.apply)(ConfiguredGateway.unapply)
       )
     )(RecordedRunConfiguration.apply)(RecordedRunConfiguration.unapply)
   )
@@ -41,10 +41,16 @@ trait RecordedRuns extends Controller
 
   def index = Action { implicit request =>
     Async {
-      systemService.attachedDevices.map { devices =>
+      systemService.attachedDevices.map { gateways =>
         val form = createRunForm.fill(
           RecordedRunConfiguration(
-            devices.map(device => ConfiguredDevice(device=device))
+            gateways.map(gateway => ConfiguredGateway(
+              host=gateway.host,
+              port=gateway.port,
+              devices=gateway.devices.map { device =>
+                ConfiguredDevice(device.unit)
+              }
+            ))
           )
         )
         Ok(views.html.recordedRuns(form))

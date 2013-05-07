@@ -21,3 +21,7 @@
 .checkbox.inline {
   padding-right: 20px;
 }
+
+.controls > .checkbox:first-child {
+  margin-left: 10px;
+}

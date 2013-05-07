@@ -22,27 +22,42 @@ there's nothing to see.</p>
 
 @helper.form(action = routes.RecordedRuns.create, 'class -> "form-horizontal") {
 
-  @helper.repeat(form("selections"), min=0) { tableSelection =>
+  @helper.repeat(form("selections"), min=0) { gateway =>
 
     <div class="well well-large">
 
-      <h3>Unit @tableSelection("device.unit").value on @tableSelection("device.gateway.host").value:@tableSelection("device.gateway.port").value</h3>
+      <h3>Gateway: @gateway("host").value:@gateway("port").value</h3>
 
-      @hidden(tableSelection("device.gateway.host"))
-      @hidden(tableSelection("device.gateway.port"))
-      @hidden(tableSelection("device.unit"))
+      @hidden(gateway("host"))
+      @hidden(gateway("port"))
 
-      <div class="control-group">
-        <label class="control-label">Tables to record:</label>
-        <div class="controls">
-          @checkbox(tableSelection("table1"), '_label -> "Table 1", '_help -> "Help with Table 1")
-          @checkbox(tableSelection("table2"), '_label -> "Table 2")
-          @checkbox(tableSelection("table3"), '_label -> "Table 3")
-          @checkbox(tableSelection("table4"), '_label -> "Table 4")
-          @checkbox(tableSelection("table5"), '_label -> "Table 5")
-          @checkbox(tableSelection("table6"), '_label -> "Table 6")
-        </div>
-      </div>
+      <ul class="thumbnails">
+        
+        @helper.repeat(gateway("devices"), min=0) { device =>
+        <li class="span6">
+          <div class="thumbnail">
+            <h4>Unit @device("unit").value</h4>
+            @hidden(device("unit"))
+            <div class="control-group">
+              <label class="control-label">Tables to record:</label>
+              <div class="controls">
+                @checkbox(device("table1"), '_label -> "Table 1")
+                @checkbox(device("table2"), '_label -> "Table 2")
+                @checkbox(device("table3"), '_label -> "Table 3")
+              </div>
+              <div class="controls">
+                @checkbox(device("table4"), '_label -> "Table 4")
+                @checkbox(device("table5"), '_label -> "Table 5")
+                @checkbox(device("table6"), '_label -> "Table 6")
+              </div>
+            </div>
+          </div>
+        </li>
+        }
+
+      </ul>
+
+
 
     </div>
   }

@@ -12,7 +12,7 @@ trait SystemService {
   def status(implicit ec: ExecutionContext): Future[SystemStatus]
   def start(implicit ec: ExecutionContext): Future[Unit]
   def stop(implicit ec: ExecutionContext): Future[Unit]
-  def attachedDevices(implicit ec: ExecutionContext): Future[List[Device]]
+  def attachedDevices(implicit ec: ExecutionContext): Future[List[Gateway]]
   def startRecordedRun(config: RecordedRunConfiguration)
                       (implicit ec: ExecutionContext): Future[Unit]
 }
@@ -38,9 +38,12 @@ object SystemService extends SystemService {
     }
 
     List(
-      Device(unit=1, gateway=Gateway("127.0.0.1", 502)),
-      Device(unit=2, gateway=Gateway("127.0.0.1", 502)),
-      Device(unit=1, gateway=Gateway("192.168.0.191", 5020))
+      Gateway(host="127.0.0.1", port=5020, devices=List(
+        Device(1), Device(2), Device(3)
+      )),
+      Gateway(host="192.168.0.101", port=502, devices=List(
+        Device(1), Device(2)
+      ))
     )
   }
 
