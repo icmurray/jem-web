@@ -1,0 +1,48 @@
+@(form: Form[GatewayConfiguration])(implicit flash: Flash)
+
+@import views.helper.bootstrap2._
+
+@main(title = "Configuration") {
+
+<h1>Attached Devices</h1>
+
+@helper.form(action = routes.Configuration.update, 'class -> "form-horizontal") {
+
+  @helper.repeat(form("gateways"), min=0) { gateway =>
+
+    <div class="well well-large">
+
+      <h3>Gateway: @gateway("host").value:@gateway("port").value</h3>
+
+      @helper.inputText(gateway("host"),
+                        '_label -> "Host:",
+                        '_help -> "The IP address of this gateway.")
+      @helper.inputText(gateway("port"),
+                        '_label -> "Port:",
+                        '_help -> "The port number the gateway is listening on.")
+
+      <h4>Attached Devices</h4>
+      <ul class="thumbnails">
+        
+        @helper.repeat(gateway("devices"), min=gateway("devices").indexes.max+1) { device =>
+        <li class="span4">
+          <div class="thumbnail">
+            <h5>Unit: @device("unit").value</h5>
+            @helper.inputText(device("unit"),
+                              'class  -> "input-mini",
+                              '_label -> "Unit Number:",
+                              '_help  -> "This device's address on the RS-485 network.")
+          </div>
+        </li>
+        }
+
+      </ul>
+
+    </div>
+  }
+
+
+  <button class="pull-right btn btn-primary btn-large" type="submit" name="submit-form" value="create">Save</button>
+}
+
+}

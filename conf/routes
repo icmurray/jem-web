@@ -13,5 +13,8 @@ POST    /system/stop                controllers.System.stop
 GET     /recorded-runs              controllers.RecordedRuns.index
 POST    /recorded-runs/new          controllers.RecordedRuns.create
 
+GET     /configuration              controllers.Configuration.index
+POST    /configuration              controllers.Configuration.update
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
