@@ -39,9 +39,13 @@ trait RecordedRuns extends Controller
 
   def systemService: SystemService
 
+  private def gatewaysF = systemService.attachedDevices
+  private def recordingsF = systemService.recordedRuns
+
   def index = Action { implicit request =>
     Async {
-      systemService.attachedDevices.map { gateways =>
+
+      gatewaysF.zip(recordingsF).map { case (gateways, recordings) =>
         val form = createRunForm.fill(
           RecordedRunConfiguration(
             gateways.map(gateway => ConfiguredGateway(
@@ -53,7 +57,7 @@ trait RecordedRuns extends Controller
             ))
           )
         )
-        Ok(views.html.recordedRuns(form))
+        Ok(views.html.recordedRuns(form, recordings))
       } recover {
         case t => backendIsDownResponse
       }
@@ -63,8 +67,8 @@ trait RecordedRuns extends Controller
   def create = Action { implicit request =>
     Async {
       createRunForm.bindFromRequest.fold(
-        formErrors     => future {
-          BadRequest(views.html.recordedRuns(formErrors))
+        formErrors     => recordingsF.map { recordings =>
+          BadRequest(views.html.recordedRuns(formErrors, recordings))
         },
 
         configuration  => {
@@ -77,6 +81,19 @@ trait RecordedRuns extends Controller
           }
         }
       )
+    }
+  }
+
+  def stop(id: String) = Action { implicit request =>
+    Async {
+      systemService.stopRecordedRun(id).map { _ =>
+        Redirect(routes.RecordedRuns.index).flashing(
+          "success" -> ("Successfully stopped recording.")
+        )
+      } recover {
+        case service.NotFound => NotFound(s"Unknown Recording: ${id}")
+        case _                => backendIsDownResponse
+      }
     }
   }
 }

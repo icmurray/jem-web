@@ -1,4 +1,4 @@
-@(form: Form[domain.RecordedRunConfiguration])(implicit flash: Flash)
+@(form: Form[domain.RecordedRunConfiguration], recordings: List[domain.Recording])(implicit flash: Flash)
 
 @import views.helper.bootstrap2._
 
@@ -16,6 +16,48 @@
 @main(title = "Recorded Runs") {
 
 <h1>Recorded Runs</h1>
+
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Status</th>
+      <th class="hidden-phone">Start Time</th>
+      <th class="hidden-phone">End Time</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+
+    @defining(Map("running" -> "success",
+                  "aborted" -> "error")) { classMap =>
+
+      @for(r <- recordings) {
+        <tr class="@classMap.getOrElse(r.status,"")">
+          <td><a href="#"><i class="icon-list-alt"></i> @r.id</a></td>
+          <td>@r.status</td>
+          <td class="hidden-phone">@r.startTime</td>
+          <td class="hidden-phone">@r.endTime</td>
+          <td>
+
+            @if(r.status == "running") {
+              @helper.form(action = routes.RecordedRuns.stop(r.id)) {
+                <button class="btn btn-danger btn-mini"
+                        type="submit"
+                        name="submit-form"
+                        value="stop">
+                        <i class="icon-stop icon-white"></i> <span class="hidden-phone">Stop Recording</span>
+                </button>
+              }  
+            }
+
+          </td>
+        </tr>
+      }
+    }
+
+  </tbody>
+</table>
 
 <p>Here we will list a bunch of previously recorded runs.  For now
 there's nothing to see.</p>

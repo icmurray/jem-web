@@ -1,5 +1,14 @@
 package domain
 
+import org.joda.time.DateTime
+
+case class Recording(
+    id: String,
+    status: String,
+    startTime: DateTime,
+    endTime: Option[DateTime],
+    configuredGateways: List[ConfiguredGateway])
+
 case class RecordedRunConfiguration(
   selections: List[ConfiguredGateway]
 )

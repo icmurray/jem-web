@@ -25,3 +25,7 @@
 .controls > .checkbox:first-child {
   margin-left: 10px;
 }
+
+td > form {
+  margin: 0px;
+}
