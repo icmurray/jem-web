@@ -10,11 +10,11 @@
 .row-fluid ul.thumbnails li.span2:nth-child(6n + 7) { margin-left : 0px; }
 .row-fluid ul.thumbnails li.span1:nth-child(12n + 13) { margin-left : 0px; }
 
-.thumbnail {
+.meters .thumbnail {
   text-align: center;
 }
 
-.thumbnail canvas {
+.meters .thumbnail canvas {
   width: 100%;
 }
 

@@ -34,7 +34,7 @@ there's nothing to see.</p>
       <ul class="thumbnails">
         
         @helper.repeat(gateway("devices"), min=0) { device =>
-        <li class="span6">
+        <li class="span4">
           <div class="thumbnail">
             <h4>Unit @device("unit").value</h4>
             @hidden(device("unit"))
@@ -44,8 +44,6 @@ there's nothing to see.</p>
                 @checkbox(device("table1"), '_label -> "Table 1")
                 @checkbox(device("table2"), '_label -> "Table 2")
                 @checkbox(device("table3"), '_label -> "Table 3")
-              </div>
-              <div class="controls">
                 @checkbox(device("table4"), '_label -> "Table 4")
                 @checkbox(device("table5"), '_label -> "Table 5")
                 @checkbox(device("table6"), '_label -> "Table 6")
@@ -62,8 +60,7 @@ there's nothing to see.</p>
     </div>
   }
 
-
-  <button class="btnn btn-primary btn-large" type="submit" name="submit-form" value="create">Create</button>
+  <button class="pull-right btn btn-primary btn-large" type="submit" name="submit-form" value="create">Create</button>
 }
 
 }
