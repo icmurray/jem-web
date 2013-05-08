@@ -38,10 +38,10 @@ trait Configuration extends Controller
   def index = Action { implicit request =>
     Async {
       systemService.attachedDevices.map { gateways =>
-
         val form = attachedDevicesForm.fill(GatewayConfiguration(gateways))
-
         Ok(views.html.configuration(form))
+      } recover {
+        case t => backendIsDownResponse
       }
     }
   }

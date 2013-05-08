@@ -54,6 +54,8 @@ trait RecordedRuns extends Controller
           )
         )
         Ok(views.html.recordedRuns(form))
+      } recover {
+        case t => backendIsDownResponse
       }
     }
   }

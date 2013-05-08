@@ -4,6 +4,8 @@ import scala.concurrent.{Future, ExecutionContext, future}
 
 import com.typesafe.config._
 
+import play.api.libs.json._
+import play.api.libs.functional.syntax._
 import play.api.libs.ws.WS
 
 import domain.{SystemStatus, Device, Gateway, RecordedRunConfiguration}
@@ -27,24 +29,34 @@ object SystemService extends SystemService {
   private val stopUrl    = backendUrl + "/system-control/stop"
   private val devicesUrl = backendUrl + "/system-control/attached-devices"
 
-  //private implicit val devicesReads = (
-  //  (__ \ "unit").read[Int]
-  //)(Devi
+  implicit private val deviceReads: Reads[Device] = (
+    (__ \ "unit").read[Int] ~
+    (__ \ "unit").read[Int]     // Workaround for requiring > 1 field.
+  )((unit,_) => Device(unit))
 
-  override def attachedDevices(implicit ec: ExecutionContext) = future {
+  implicit private val gatewayReads: Reads[Gateway] = (
+    (__ \ "host").read[String] ~
+    (__ \ "port").read[Int] ~
+    (__ \ "devices").read[List[Device]]
+  )(Gateway)
+
+  /** Because the API doesn't provide top-level arrays */
+  private case class GatewayAggregate(gateways: List[Gateway])
+
+  implicit private val aggGatewayReads: Reads[GatewayAggregate] = (
+    (__ \ "gateways").read[List[Gateway]] ~
+    (__ \ "gateways").read[List[Gateway]] // Workaround..
+  )((gws, _) => GatewayAggregate(gws))
+
+  override def attachedDevices(implicit ec: ExecutionContext) = {
 
     WS.url(devicesUrl).get().map { response =>
-      
+      val aggregate = response.json.validate[GatewayAggregate]
+      aggregate.fold(
+        errors => throw new RuntimeException("Bad response"),
+        valid  => valid.gateways
+      )
     }
-
-    List(
-      Gateway(host="127.0.0.1", port=5020, devices=List(
-        Device(1), Device(2), Device(3)
-      )),
-      Gateway(host="192.168.0.101", port=502, devices=List(
-        Device(1), Device(2)
-      ))
-    )
   }
 
   override def startRecordedRun(config: RecordedRunConfiguration)
