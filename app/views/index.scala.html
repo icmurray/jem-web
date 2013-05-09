@@ -6,14 +6,8 @@
 
 @if(status.running) {
 <p>The system is currently recording data.</p>
-  @helper.form(action = routes.System.stop) {
-    <button class="btn btn-large btn-danger" type="submit">Stop Recording Data</button>
-  }
 } else {
   <p>The system is not recording any data right now.</p>
-  @helper.form(action = routes.System.start) {
-    <button class="btn btn-large btn-primary" type="submit">Start Recording Data</button>
-  }
 }
 
 
