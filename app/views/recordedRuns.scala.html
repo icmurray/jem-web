@@ -29,30 +29,38 @@
   </thead>
   <tbody>
 
-    @defining(Map("running" -> "success",
-                  "aborted" -> "error")) { classMap =>
+    @if(recordings.isEmpty) {
+    <tr>
+      <td colspan=5>
+        <p class="text-center">There are no recordings.  Try starting a new recording below.</p>
+      </td>
+    </tr>
+    } else {
+      @defining(Map("running" -> "success",
+                    "aborted" -> "error")) { classMap =>
 
-      @for(r <- recordings) {
-        <tr class="@classMap.getOrElse(r.status,"")">
-          <td><a href="#"><i class="icon-list-alt"></i> @r.id</a></td>
-          <td>@r.status</td>
-          <td class="hidden-phone">@r.startTime</td>
-          <td class="hidden-phone">@r.endTime</td>
-          <td>
+        @for(r <- recordings) {
+          <tr class="@classMap.getOrElse(r.status,"")">
+            <td><a href="#"><i class="icon-list-alt"></i> @r.id</a></td>
+            <td>@r.status</td>
+            <td class="hidden-phone">@r.startTime</td>
+            <td class="hidden-phone">@r.endTime</td>
+            <td>
 
-            @if(r.status == "running") {
-              @helper.form(action = routes.RecordedRuns.stop(r.id)) {
-                <button class="btn btn-danger btn-mini"
-                        type="submit"
-                        name="submit-form"
-                        value="stop">
-                        <i class="icon-stop icon-white"></i> <span class="hidden-phone">Stop Recording</span>
-                </button>
-              }  
-            }
+              @if(r.status == "running") {
+                @helper.form(action = routes.RecordedRuns.stop(r.id)) {
+                  <button class="btn btn-danger btn-mini"
+                          type="submit"
+                          name="submit-form"
+                          value="stop">
+                          <i class="icon-stop icon-white"></i> <span class="hidden-phone">Stop Recording</span>
+                  </button>
+                }  
+              }
 
-          </td>
-        </tr>
+            </td>
+          </tr>
+        }
       }
     }
 
