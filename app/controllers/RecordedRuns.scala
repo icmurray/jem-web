@@ -10,7 +10,7 @@ import play.api.mvc._
 import play.api.Play.current
 
 import domain.{RecordedRunConfiguration, ConfiguredDevice, ConfiguredGateway}
-import service.SystemService
+import service.{SystemService, SystemConflict}
 
 trait RecordedRuns extends Controller
                    with ControllerUtilities {
@@ -41,12 +41,17 @@ trait RecordedRuns extends Controller
 
   private def gatewaysF = systemService.attachedDevices
   private def recordingsF = systemService.recordedRuns
+  private def statusF = systemService.status
 
   def index = Action { implicit request =>
     Async {
 
-      gatewaysF.zip(recordingsF).map { case (gateways, recordings) =>
-        val form = createRunForm.fill(
+      val response = for {
+        gateways     <- gatewaysF
+        recordings   <- recordingsF
+        systemStatus <- statusF
+        
+        form = createRunForm.fill(
           RecordedRunConfiguration(
             gateways.map(gateway => ConfiguredGateway(
               host=gateway.host,
@@ -57,18 +62,18 @@ trait RecordedRuns extends Controller
             ))
           )
         )
-        Ok(views.html.recordedRuns(form, recordings))
-      } recover {
-        case t => backendIsDownResponse
-      }
+      } yield Ok(views.html.recordedRuns(form, recordings, systemStatus))
+
+      response.recover { case t => backendIsDownResponse }
     }
   }
 
   def create = Action { implicit request =>
     Async {
       createRunForm.bindFromRequest.fold(
-        formErrors     => recordingsF.map { recordings =>
-          BadRequest(views.html.recordedRuns(formErrors, recordings))
+        formErrors     => recordingsF.zip(statusF).map { case (recordings, systemStatus) =>
+          BadRequest(views.html.recordedRuns(
+            formErrors, recordings, systemStatus))
         },
 
         configuration  => {
@@ -77,6 +82,11 @@ trait RecordedRuns extends Controller
               "success" -> ("Successfully started new recording.")
             )
           } recover {
+            case SystemConflict => {
+              Redirect(routes.RecordedRuns.index).flashing(
+                "error" -> "Cannot start new recording whilst another one is running."
+              )
+            }
             case t => backendIsDownResponse
           }
         }

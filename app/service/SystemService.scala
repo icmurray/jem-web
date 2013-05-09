@@ -151,6 +151,7 @@ object SystemService extends SystemService {
     val data = Json.toJson(config.selections)
     WS.url(recordingsUrl).post(data).map {
       case response if response.status == 201 => {}
+      case response if response.status == 409 => throw SystemConflict
       case _                                  => throw new RuntimeException()
     }
 

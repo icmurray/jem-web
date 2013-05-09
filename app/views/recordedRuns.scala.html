@@ -1,4 +1,4 @@
-@(form: Form[domain.RecordedRunConfiguration], recordings: List[domain.Recording])(implicit flash: Flash)
+@(form: Form[domain.RecordedRunConfiguration], recordings: List[domain.Recording], systemStatus: domain.SystemStatus)(implicit flash: Flash)
 
 @import views.helper.bootstrap2._
 @import views.helper.transform._
@@ -110,7 +110,12 @@
     </div>
   }
 
-  <button class="pull-right btn btn-success btn-large" type="submit" name="submit-form" value="create"><i class="icon-time icon-white"></i> Start Recording </button>
+  <button class="pull-right btn btn-success btn-large"
+	  type="submit"
+	  name="submit-form"
+	  @if(systemStatus.running){disabled="disabled"}
+	  value="create">
+    <i class="icon-time icon-white"></i> Start Recording </button>
 }
 
 }

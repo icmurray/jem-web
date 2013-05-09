@@ -45,10 +45,10 @@
         <!-- Content -->
         <div class="span10">
 
-          @flash.get("success").map { msg =>
-            <div class="alert alert-success">
+          @for(alertType <- flash.data.keys.filter(Set("success", "error").contains(_))) {
+            <div class="alert alert-@alertType">
               <button type="button" class="close" data-dismiss="alert">&times;</button>
-              <strong>Success!</strong> @msg
+              <strong>@alertType.capitalize!</strong> @flash(alertType)
             </div>
           }
 
