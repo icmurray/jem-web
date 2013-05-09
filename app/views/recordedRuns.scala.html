@@ -1,6 +1,7 @@
 @(form: Form[domain.RecordedRunConfiguration], recordings: List[domain.Recording])(implicit flash: Flash)
 
 @import views.helper.bootstrap2._
+@import views.helper.transform._
 
 @hidden(field: Field) = {
   <input type="hidden" name="@field.name" id="@field.id" value="@field.value">
@@ -43,8 +44,8 @@
           <tr class="@classMap.getOrElse(r.status,"")">
             <td><a href="#"><i class="icon-list-alt"></i> @r.id</a></td>
             <td>@r.status</td>
-            <td class="hidden-phone">@r.startTime</td>
-            <td class="hidden-phone">@r.endTime</td>
+            <td class="hidden-phone">@r.startTime.prettify</td>
+            <td class="hidden-phone">@r.endTime.map(_.prettify)</td>
             <td>
 
               @if(r.status == "running") {
