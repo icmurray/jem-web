@@ -11,6 +11,7 @@ POST    /system/start               controllers.System.start
 POST    /system/stop                controllers.System.stop
 
 GET     /recorded-runs              controllers.RecordedRuns.index
+GET     /recorded-runs/:id          controllers.RecordedRuns.details(id)
 POST    /recorded-runs              controllers.RecordedRuns.create
 POST    /recorded-runs/:id/stop     controllers.RecordedRuns.stop(id)
 

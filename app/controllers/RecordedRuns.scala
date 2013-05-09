@@ -84,6 +84,8 @@ trait RecordedRuns extends Controller
     }
   }
 
+  def details(id: String) = TODO
+
   def stop(id: String) = Action { implicit request =>
     Async {
       systemService.stopRecordedRun(id).map { _ =>

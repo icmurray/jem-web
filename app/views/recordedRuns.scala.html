@@ -42,7 +42,7 @@
 
         @for(r <- recordings) {
           <tr class="@classMap.getOrElse(r.status,"")">
-            <td><a href="#"><i class="icon-list-alt"></i> @r.id</a></td>
+            <td><a href="@routes.RecordedRuns.details(r.id)"><i class="icon-list-alt"></i> @r.id</a></td>
             <td>@r.status</td>
             <td class="hidden-phone">@r.startTime.prettify</td>
             <td class="hidden-phone">@r.endTime.map(_.prettify)</td>
