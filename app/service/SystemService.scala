@@ -21,6 +21,8 @@ trait SystemService {
   def startRecordedRun(config: RecordedRunConfiguration)(implicit ec: ExecutionContext): Future[Unit]
   def recordedRuns(implicit ec: ExecutionContext): Future[List[Recording]]
   def stopRecordedRun(id: String)(implicit ec: ExecutionContext): Future[Unit]
+  def recordingDetail(id: String)(implicit ec: ExecutionContext): Future[Option[Recording]]
+  def currentRecording(implicit ec: ExecutionContext): Future[Option[Recording]]
 }
 
 object SystemService extends SystemService {
@@ -124,6 +126,24 @@ object SystemService extends SystemService {
         errors => throw new RuntimeException("Bad response"),
         valid  => valid.recordings
       )
+    }
+  }
+
+  /** TODO: this should call the API for an *individual* recording */
+  override def recordingDetail(id: String)(implicit ec: ExecutionContext) = {
+    recordedRuns.map { recordings =>
+      recordings.find(_.id == id)
+    }
+  }
+
+  override def currentRecording(implicit ec: ExecutionContext) = {
+    status.flatMap { status =>
+      val recordingId = status.activeRecordingIds.headOption
+      if (! recordingId.isDefined) {
+        future { None }
+      } else {
+        recordingDetail(recordingId.get)
+      }
     }
   }
 

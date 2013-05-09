@@ -46,8 +46,9 @@ object Application extends Controller
 
   def realtime = Action { implicit r: RequestHeader =>
     Async {
-      systemService.status.map { status =>
-        Ok(views.html.realtime(status))
+  
+      systemService.currentRecording.map { recordingO =>
+        Ok(views.html.realtime(recordingO))
       } recover {
         case t => backendIsDownResponse
       }
