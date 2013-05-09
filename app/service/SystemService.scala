@@ -97,6 +97,22 @@ object SystemService extends SystemService {
     (__ \ "recordings").read[List[Recording]] // Workaround..
   )((rs, _) => RecordingAggregate(rs))
 
+  implicit private val configuredDeviceWrites: Writes[ConfiguredDevice] = (
+    (__ \ "unit").write[Int] ~
+    (__ \ "table_ids").write[List[Int]]
+  )(d => (
+    d.unit,
+    List(d.table1, d.table2, d.table3,
+         d.table4, d.table5, d.table6).zipWithIndex.filter(_._1).map(_._2+1)
+  ))
+              
+
+  implicit private val configuredGatewayWrites: Writes[ConfiguredGateway] = (
+    (__ \ "host").write[String] ~
+    (__ \ "port").write[Int] ~
+    (__ \ "configured_devices").write[List[ConfiguredDevice]]
+  )(unlift(ConfiguredGateway.unapply))
+
   override def recordedRuns(implicit ec: ExecutionContext) = {
     WS.url(recordingsUrl).get().map { response =>
       val aggregate = response.json.validate[RecordingAggregate]
@@ -126,7 +142,13 @@ object SystemService extends SystemService {
   }
 
   override def startRecordedRun(config: RecordedRunConfiguration)
-                               (implicit ec: ExecutionContext) = future {
+                               (implicit ec: ExecutionContext) = {
+
+    val data = Json.toJson(config.selections)
+    WS.url(recordingsUrl).post(data).map {
+      case response if response.status == 201 => {}
+      case _                                  => throw new RuntimeException()
+    }
 
   }
 

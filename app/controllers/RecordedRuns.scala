@@ -73,7 +73,7 @@ trait RecordedRuns extends Controller
 
         configuration  => {
           systemService.startRecordedRun(configuration).map { _ =>
-            Redirect(routes.Application.index).flashing(
+            Redirect(routes.RecordedRuns.index).flashing(
               "success" -> ("Successfully started new recording.")
             )
           } recover {
