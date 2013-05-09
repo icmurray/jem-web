@@ -21,7 +21,7 @@
 @media all and (max-width: 767px)  {
   .keep-side-by-side {
     float: left !important;
-    width: 25% !important;
+    width: 16.66666666666666% !important;
   }
 }
 

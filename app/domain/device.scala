@@ -1,7 +1,7 @@
 package domain
 
 case class Register(
-    address: Short,
+    address: Int,
     minValue: Int,
     maxValue: Int) {
 

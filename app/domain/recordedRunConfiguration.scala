@@ -33,12 +33,12 @@ case class ConfiguredDevice(
 
   // TODO: this should take device type into account
   def registers(tableId: Int): List[Register] = tableId match {
-    case 1 => (15026 to 15036).map{i: Int => Register(i.asInstanceOf[Short], 0, 100)}.toList
-    case 2 => (15026 to 15036).map{i: Int => Register(i.asInstanceOf[Short], 0, 100)}.toList
-    case 3 => (15026 to 15036).map{i: Int => Register(i.asInstanceOf[Short], 0, 100)}.toList
-    case 4 => (15026 to 15036).map{i: Int => Register(i.asInstanceOf[Short], 0, 100)}.toList
-    case 5 => (15026 to 15036).map{i: Int => Register(i.asInstanceOf[Short], 0, 100)}.toList
-    case 6 => (15026 to 15036).map{i: Int => Register(i.asInstanceOf[Short], 0, 100)}.toList
+    case 1 => (50512 to 50572 by 2).map(Register(_, 0, 100)).toList
+    case 2 => (50768 to 50817 by 2).map(Register(_, 0, 100)).toList
+    case 3 => (51024 to 51086 by 2).map(Register(_, 0, 100)).toList
+    case 4 => (51280 to 51313).map(Register(_, 0, 100)).toList
+    case 5 => (51456 to 51463).map(Register(_, 0, 100)).toList
+    case 6 => (51536 to 51858).map(Register(_, 0, 100)).toList
     case _ => List()
   }
 }

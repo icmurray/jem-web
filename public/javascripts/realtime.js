@@ -21,7 +21,6 @@ colorStart: '#11CF2A',   // Colors
 };
 
 function init() {
-  Jem.realtime.registerTemplate = Handlebars.compile($('#register-template').html());
   Jem.realtime.meters = document.getElementById("meters");
   testWebSocket();
 }
@@ -56,31 +55,30 @@ function doSend(message) {}
 function writeToScreen(address, value) {
 
     if (address in Jem.realtime.valueLabels) {
-      Jem.realtime.valueLabels[address].innerHTML = value;
-      Jem.realtime.gauges[address].set(value);
-      //Jem.realtime.charts[address].append(new Date().getTime(), value);
+      if(Jem.realtime.valueLabels[address]) {
+        Jem.realtime.valueLabels[address].innerHTML = value;
+        Jem.realtime.gauges[address].set(value);
+        //Jem.realtime.charts[address].append(new Date().getTime(), value);
+      }
     } else {
+      var gaugeCanvas = $('.meter.register-address-' + address + ' canvas.gauge')[0];
 
-      var templateContext = {
-        address: address,
-        value: value
-      };
+      if(!gaugeCanvas) {
+        Jem.realtime.valueLabels[address] = false;
+        return;
+      }
 
-      var htmlString = Jem.realtime.registerTemplate(templateContext);
-      var html = $.parseHTML(htmlString.trim())[0];
-      var gaugeCanvas = $(html).find('canvas.gauge')[0];
       var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
-      gauge.maxValue = 40;
+      gauge.maxValue = 100;
       gauge.minValue = 0;
       gauge.animationSpeed = 8;
       gauge.set(value);
 
-      var valueLabel = $(html).find('.register-value-label')[0];
+      var valueLabel = $('.meter.register-address-' + address + ' .register-value-label')[0];
 
       Jem.realtime.gauges[address] = gauge;
       Jem.realtime.valueLabels[address] = valueLabel;
 
-      Jem.realtime.meters.insertBefore(html, Jem.realtime.meters.firstChild);
       //var chartCanvas = document.createElement("canvas");
       //chartCanvas.width=400;
       //chartCanvas.height=50;
