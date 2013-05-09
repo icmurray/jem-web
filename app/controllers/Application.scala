@@ -69,10 +69,17 @@ object Application extends Controller
         var i = 0
         while (i < values.length) {
           val bsonAry = values.getAs[BSONArray](i).get
-          val address = bsonAry.getAs[Int](0).get
-          val value   = bsonAry.getAs[Int](1).get
-          bb.putShort(address.asInstanceOf[Short])
-          bb.putInt(value)
+          val address = bsonAry.getAs[Int](0)
+          val value   = bsonAry.getAs[Int](1)
+
+          if (address.isDefined && value.isDefined && value.get != 0) {
+            bb.putShort(address.get.asInstanceOf[Short])
+            bb.putInt(value.get)
+          } else {
+            println(address + ":" + value)
+            bb.putShort(0)
+            bb.putInt(0)
+          }
           i += 1
         }
 
