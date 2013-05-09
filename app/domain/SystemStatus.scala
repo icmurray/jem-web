@@ -1,5 +1,6 @@
 package domain
 
 case class SystemStatus(
-    running: Boolean
+    running: Boolean,
+    activeRecordingIds: List[String]
 )

@@ -97,6 +97,11 @@ object SystemService extends SystemService {
     (__ \ "recordings").read[List[Recording]] // Workaround..
   )((rs, _) => RecordingAggregate(rs))
 
+  implicit private val systemStatusReads: Reads[SystemStatus] = (
+    (__ \ "running").read[Boolean] ~
+    (__ \ "active_recordings").read[List[String]]
+  )(SystemStatus)
+
   implicit private val configuredDeviceWrites: Writes[ConfiguredDevice] = (
     (__ \ "unit").write[Int] ~
     (__ \ "table_ids").write[List[Int]]
@@ -105,7 +110,6 @@ object SystemService extends SystemService {
     List(d.table1, d.table2, d.table3,
          d.table4, d.table5, d.table6).zipWithIndex.filter(_._1).map(_._2+1)
   ))
-              
 
   implicit private val configuredGatewayWrites: Writes[ConfiguredGateway] = (
     (__ \ "host").write[String] ~
@@ -154,7 +158,10 @@ object SystemService extends SystemService {
 
   def status(implicit ec: ExecutionContext) = {
     WS.url(statusUrl).get().map { response =>
-      SystemStatus((response.json \ "running").as[Boolean])
+      response.json.validate[SystemStatus].fold(
+        errors => throw new RuntimeException("Bad Response"),
+        valid  => valid
+      )
     }
   }
 
