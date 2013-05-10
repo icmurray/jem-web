@@ -3,10 +3,7 @@ package domain
 case class Register(
     address: Int,
     minValue: Int,
-    maxValue: Int) {
-
-  val name: String = s"Register ${address}"
-}
+    maxValue: Int)
 
 case class Device(unit: Int)
 
