@@ -39,8 +39,12 @@ function onClose(evt) {}
 function onMessage(evt) {
 
   var msg = $.parseJSON(evt.data);
+  var deviceAddress = msg['device']['gateway']['host'].replace(/\./g, '-') + '-' +
+                      msg['device']['gateway']['port'] + '-' +
+                      msg['device']['unit'];
+
   for(var i=0; i<msg['values'].length; i++) {
-    var address = msg['values'][i][0];
+    var address = deviceAddress + '-' + msg['values'][i][0];
     var value = msg['values'][i][1];
     writeToScreen(address, value);
   }

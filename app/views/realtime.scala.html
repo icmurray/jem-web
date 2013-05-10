@@ -17,7 +17,7 @@
                 @for(registerRow <- device.registers(tableId).grouped(6)) {
                   <div class="row-fluid">
                   @for(register <- registerRow) {
-                    <div class="span2 keep-side-by-side meter register-address-@register.address">
+                    <div class="span2 keep-side-by-side meter register-address-@gateway.host.replace('.', '-')-@gateway.port-@device.unit-@register.address">
                       <canvas class="gauge" width="100" height="100"></canvas>
                       <h6 class="align-center register-address-label">@register.name</h6>
                       <p class="align-center register-value-label">No Value</p>
