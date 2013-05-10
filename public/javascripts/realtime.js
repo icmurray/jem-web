@@ -62,7 +62,8 @@ function writeToScreen(address, value) {
         //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
-      var gaugeCanvas = $('[class~="meter"][data-register-address="' + address + '"] canvas.gauge')[0];
+      var meterDiv = $('[class~="meter"][data-register-address="' + address + '"]')[0];
+      var gaugeCanvas = $(meterDiv).children('canvas.gauge')[0];
 
       if(!gaugeCanvas) {
         Jem.realtime.valueLabels[address] = false;
@@ -70,8 +71,8 @@ function writeToScreen(address, value) {
       }
 
       var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
-      gauge.maxValue = 100;
-      gauge.minValue = 0;
+      gauge.maxValue = $(meterDiv).data("register-max-value");
+      gauge.minValue = $(meterDiv).data("register-min-value");
 
       // By setting the animation speed so high, we don't try to animate
       // the intermediate positions of the gauge when setting a new value.
@@ -80,7 +81,7 @@ function writeToScreen(address, value) {
       gauge.animationSpeed = 8000000;
       gauge.set(value);
 
-      var valueLabel = $('[class~="meter"][data-register-address="' + address + '"] .register-value-label')[0];
+      var valueLabel = $(meterDiv).children('.register-value-label')[0];
 
       Jem.realtime.gauges[address] = gauge;
       Jem.realtime.valueLabels[address] = valueLabel;

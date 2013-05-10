@@ -21,7 +21,9 @@
           <div class="row-fluid">
           @for(register <- registerRow) {
             <div class="span@(pair.length) keep-side-by-side meter"
-                 data-register-address="@gateway.host.replace('.', '-')-@gateway.port-@device.unit-@register.address">
+                 data-register-address="@gateway.host.replace('.', '-')-@gateway.port-@device.unit-@register.address"
+                 data-register-min-value="@register.minValue"
+                 data-register-max-value="@register.maxValue">
               <canvas class="gauge" width="100" height="100"></canvas>
               <h6 class="text-center register-address-label">@register.label</h6>
               <p class="text-center register-value-label">No Value</p>
