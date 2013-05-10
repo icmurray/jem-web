@@ -13,11 +13,8 @@ import play.api.libs.iteratee._
 // Reactive Mongo imports
 import reactivemongo.api._
 import reactivemongo.bson._
-//import reactivemongo.bson.handlers.DefaultBSONHandlers.DefaultBSONReaderHandler
-
-// Reactive Mongo plugin
 import play.modules.reactivemongo._
-//import play.modules.reactivemongo.PlayBsonImplicits._
+import play.modules.reactivemongo.json.collection.JSONCollection
 
 // Play Json imports
 import play.api.libs.json._
@@ -31,10 +28,9 @@ object Application extends Controller
                    with ControllerUtilities {
  
   private val systemService = SystemService
+
   override lazy val db = ReactiveMongoPlugin.db
-  lazy val collection = db("realtime")
-  //lazy val cursor = collection.find(Json.obj("address" -> Json.obj("$gt" -> 50562)), QueryOpts().tailable.awaitData)
-  //lazy val cursor = collection.find(Json.obj(), QueryOpts().tailable.awaitData)
+  lazy val collection = db.collection[JSONCollection]("realtime")
 
   def index = Action { implicit request =>
     Async {
@@ -57,42 +53,29 @@ object Application extends Controller
     }
   }
 
-  def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
+  def watchRealtimeStream = WebSocket.using[JsValue] { request =>
     // Enumerates the capped collection
     val now = new DateTime()
-    val query = BSONDocument("timing_info.end" -> BSONDocument("$gt" -> BSONLong((DateTimeUtils.getInstantMillis(now) / 1000L))))
-    val cursor = collection.find(query).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
-    val out = cursor.enumerate.map { bson =>
 
-      try {
-        val values = bson.getAs[BSONArray]("values").get
-        val bb = ByteBuffer.allocate(4 + (2+4) * values.length)
-        bb.putInt(values.length)
+    val query = Json.obj(
+      "timing_info.end" -> Json.obj(
+        "$gt" -> (DateTimeUtils.getInstantMillis(now) / 1000L)
+      )
+    )
 
-        var i = 0
-        while (i < values.length) {
-          val bsonAry = values.getAs[BSONArray](i).get
-          val address = bsonAry.getAs[Int](0)
-          val value   = bsonAry.getAs[Int](1)
+    val projection = Json.obj(
+      "values" -> 1,
+      "timing_info.end" -> 1,
+      "_id" -> 0,
+      "device" -> 1,
+      "table_id" -> 1
+    )
 
-          if (address.isDefined && value.isDefined) {
-            bb.putShort(address.get.asInstanceOf[Short])
-            bb.putInt(value.get)
-          } else {
-            println(address + ":" + value)
-            bb.putShort(0)
-            bb.putInt(0)
-          }
-          i += 1
-        }
+    val cursor: Cursor[JsValue] = collection.find(query, projection).options(QueryOpts().tailable.awaitData).cursor[JsValue]
+    val out = cursor.enumerate
+    
 
-        bb.array
-      } catch {
-        case e: Throwable => println(e) ; throw e
-      }
-    }
-
-    val in = Iteratee.ignore[Array[Byte]].mapDone { _ =>
+    val in = Iteratee.ignore[JsValue].mapDone { _ =>
       println("DISCONNECTED!")
       cursor.close()
     }

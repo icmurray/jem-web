@@ -27,7 +27,6 @@ function init() {
 
 function testWebSocket() {
   Jem.realtime.websocket = new WebSocket(Jem.realtime.wsUri);
-  Jem.realtime.websocket.binaryType = "arraybuffer";
   Jem.realtime.websocket.onopen = function(evt) { onOpen(evt) };
   Jem.realtime.websocket.onclose = function(evt) { onClose(evt) };
   Jem.realtime.websocket.onmessage = function(evt) { onMessage(evt) };
@@ -38,14 +37,12 @@ function onOpen(evt) {}
 function onClose(evt) {}
 
 function onMessage(evt) {
-  var d = new DataView(evt.data);
-  var numDataPoints = d.getUint32(0, false);
-  var i = 0;
-  while (i < numDataPoints) {
-    var address = d.getUint16(4 + i*6, false);
-    var value = d.getUint32(6 + i*6, false);
+
+  var msg = $.parseJSON(evt.data);
+  for(var i=0; i<msg['values'].length; i++) {
+    var address = msg['values'][i][0];
+    var value = msg['values'][i][1];
     writeToScreen(address, value);
-    i += 1;
   }
 }
 
