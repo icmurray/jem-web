@@ -62,7 +62,7 @@ function writeToScreen(address, value) {
         //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
-      var gaugeCanvas = $('.meter.register-address-' + address + ' canvas.gauge')[0];
+      var gaugeCanvas = $('[class~="meter"][data-register-address="' + address + '"] canvas.gauge')[0];
 
       if(!gaugeCanvas) {
         Jem.realtime.valueLabels[address] = false;
@@ -80,7 +80,7 @@ function writeToScreen(address, value) {
       gauge.animationSpeed = 8000000;
       gauge.set(value);
 
-      var valueLabel = $('.meter.register-address-' + address + ' .register-value-label')[0];
+      var valueLabel = $('[class~="meter"][data-register-address="' + address + '"] .register-value-label')[0];
 
       Jem.realtime.gauges[address] = gauge;
       Jem.realtime.valueLabels[address] = valueLabel;
