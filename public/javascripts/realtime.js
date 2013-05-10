@@ -71,7 +71,12 @@ function writeToScreen(address, value) {
       var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
       gauge.maxValue = 100;
       gauge.minValue = 0;
-      gauge.animationSpeed = 8;
+
+      // By setting the animation speed so high, we don't try to animate
+      // the intermediate positions of the gauge when setting a new value.
+      // This greatly reduces the CPU usage on the client, although it does
+      // result in jerkier movement.
+      gauge.animationSpeed = 8000000;
       gauge.set(value);
 
       var valueLabel = $('.meter.register-address-' + address + ' .register-value-label')[0];

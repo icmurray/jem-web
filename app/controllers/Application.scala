@@ -2,6 +2,8 @@ package controllers
 
 import java.nio.ByteBuffer
 
+import org.joda.time.{DateTime, DateTimeUtils}
+
 import play.api._
 import play.api.mvc._
 import play.api.Play.current
@@ -57,9 +59,9 @@ object Application extends Controller
 
   def watchRealtimeStream = WebSocket.using[Array[Byte]] { request =>
     // Enumerates the capped collection
-    //val cursor = collection.find(BSONDocument("address" -> BSONDocument("$gt" -> 50452)), QueryOpts().tailable.awaitData)
-    //val cursor = collection.find(BSONDocument("address" -> BSONDocument("$gt" -> 50452))).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
-    val cursor = collection.find(BSONDocument()).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
+    val now = new DateTime()
+    val query = BSONDocument("timing_info.end" -> BSONDocument("$gt" -> BSONLong((DateTimeUtils.getInstantMillis(now) / 1000L))))
+    val cursor = collection.find(query).options(QueryOpts().tailable.awaitData).cursor[BSONDocument]
     val out = cursor.enumerate.map { bson =>
 
       try {
@@ -73,7 +75,7 @@ object Application extends Controller
           val address = bsonAry.getAs[Int](0)
           val value   = bsonAry.getAs[Int](1)
 
-          if (address.isDefined && value.isDefined && value.get != 0) {
+          if (address.isDefined && value.isDefined) {
             bb.putShort(address.get.asInstanceOf[Short])
             bb.putInt(value.get)
           } else {
