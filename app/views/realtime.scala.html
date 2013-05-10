@@ -12,7 +12,7 @@
 
   @if(recording.isDefined) {
 
-  @for(pair <- tablesOf(recording.get.configuredGateways).grouped(3)) {
+  @for(pair <- tablesOf(recording.get.configuredGateways).grouped(2)) {
     <div class="row-fluid meters">
     @for((gateway, device, tableId) <- pair) {
       <div class="well span@(12/pair.length)">

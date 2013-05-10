@@ -19,8 +19,29 @@
 }
 
 @media all and (max-width: 767px)  {
-  .keep-side-by-side {
+  .span6.keep-side-by-side {
     float: left !important;
+    width: 50% !important;
+  }
+  .span4.keep-side-by-side {
+    float: left !important;
+    width: 33.3333333333333% !important;
+  }
+  .span3.keep-side-by-side {
+    float: left !important;
+    width: 25% !important;
+  }
+  .span2.keep-side-by-side {
+    float: left !important;
+    width: 16.66666666666666% !important;
+  }
+  .span1.keep-side-by-side {
+    float: left !important;
+
+    /**
+     * Note: this is set at twice the expected width in order
+     * that on a phone, there are still only 6 on a row.
+     */
     width: 16.66666666666666% !important;
   }
 }
