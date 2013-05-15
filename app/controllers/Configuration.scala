@@ -49,7 +49,24 @@ trait Configuration extends Controller
     }
   }
 
-  def update = TODO
+  def update = Action { implicit request =>
+    Async {
+      attachedDevicesForm.bindFromRequest.fold(
+        formErrors => future {
+          BadRequest(views.html.configuration(formErrors))
+        },
+        formData   => {
+          systemService.updateAttachedDevices(formData.gateways).map { _ =>
+            Redirect(routes.Configuration.index).flashing (
+              "success" -> "Successfully updated configuration."
+            )
+          } recover {
+            case t => backendIsDownResponse
+          }
+        }
+      )
+    }
+  }
 
 }
 

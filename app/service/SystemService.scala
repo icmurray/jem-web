@@ -18,6 +18,7 @@ trait SystemService {
   def start(implicit ec: ExecutionContext): Future[Unit]
   def stop(implicit ec: ExecutionContext): Future[Unit]
   def attachedDevices(implicit ec: ExecutionContext): Future[List[Gateway]]
+  def updateAttachedDevices(gateways: List[Gateway])(implicit ec: ExecutionContext): Future[Unit]
   def startRecordedRun(config: RecordedRunConfiguration)(implicit ec: ExecutionContext): Future[Unit]
   def recordedRuns(implicit ec: ExecutionContext): Future[List[Recording]]
   def stopRecordedRun(id: String)(implicit ec: ExecutionContext): Future[Unit]
@@ -106,6 +107,19 @@ object SystemService extends SystemService {
     (__ \ "active_recordings").read[List[String]]
   )(SystemStatus)
 
+  implicit private val deviceWrites: Writes[Device] = (
+    (__ \ "unit").write[Int] ~
+    (__ \ "type").write[String] ~
+    (__ \ "label").write[Option[String]]
+  )(unlift(Device.unapply))
+
+  implicit private val gatewayWrites: Writes[Gateway] = (
+    (__ \ "host").write[String] ~
+    (__ \ "port").write[Int] ~
+    (__ \ "label").write[Option[String]] ~
+    (__ \ "devices").write[List[Device]]
+  )(unlift(Gateway.unapply))
+
   implicit private val configuredDeviceWrites: Writes[ConfiguredDevice] = (
     (__ \ "unit").write[Int] ~
     (__ \ "table_ids").write[List[Int]]
@@ -164,6 +178,15 @@ object SystemService extends SystemService {
         errors => throw new RuntimeException("Bad response"),
         valid  => valid.gateways
       )
+    }
+  }
+
+
+  override def updateAttachedDevices(gateways: List[Gateway])(implicit ec: ExecutionContext) = {
+    val data = Json.toJson(gateways)
+    WS.url(devicesUrl).put(data).map {
+      case response if response.status == 200 => {}
+      case r                                  => throw new RuntimeException()
     }
   }
 
