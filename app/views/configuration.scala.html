@@ -20,6 +20,9 @@
       @helper.inputText(gateway("port"),
                         '_label -> "Port:",
                         '_help -> "The port number the gateway is listening on.")
+      @helper.inputText(gateway("label"),
+                        '_label -> "Label:",
+                        '_help -> "A human-readable label (optional)")
 
       <h4>Attached Devices</h4>
       <ul class="thumbnails">
@@ -32,6 +35,14 @@
                               'class  -> "input-mini",
                               '_label -> "Unit Number:",
                               '_help  -> "This device's address on the RS-485 network.")
+            @helper.select(device("type"), List(("diris.a40", "Diris A40")),
+                              'class  -> "input-medium",
+                              '_label -> "Type",
+                              '_help  -> "This device's make/model.")
+            @helper.inputText(device("label"),
+                              '_label -> "Label",
+                              'class  -> "input-medium",
+                              '_help  -> "A human-readable label (optional)")
           </div>
         </li>
         }

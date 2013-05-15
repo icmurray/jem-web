@@ -23,9 +23,12 @@ trait Configuration extends Controller
         mapping(
           "host"    -> text,
           "port"    -> number,
+          "label"   -> optional(text),
           "devices" -> list(
             mapping(
-              "unit"   -> number
+              "unit"  -> number,
+              "type"  -> text,
+              "label" -> optional(text)
             )(Device.apply)(Device.unapply)
           )
         )(Gateway.apply)(Gateway.unapply)

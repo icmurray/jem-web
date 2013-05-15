@@ -50,12 +50,14 @@ object SystemService extends SystemService {
 
   implicit private val deviceReads: Reads[Device] = (
     (__ \ "unit").read[Int] ~
-    (__ \ "unit").read[Int]     // Workaround for requiring > 1 field.
-  )((unit,_) => Device(unit))
+    (__ \ "type").read[String] ~
+    (__ \ "label").read[Option[String]]
+  )(Device)
 
   implicit private val gatewayReads: Reads[Gateway] = (
     (__ \ "host").read[String] ~
     (__ \ "port").read[Int] ~
+    (__ \ "label").read[Option[String]] ~
     (__ \ "devices").read[List[Device]]
   )(Gateway)
 
