@@ -7,7 +7,7 @@ case class Recording(
     status: String,
     startTime: DateTime,
     endTime: Option[DateTime],
-    configuredGateways: List[ConfiguredGateway])
+    gateways: List[Gateway])
 
 case class RecordedRunConfiguration(
   selections: List[ConfiguredGateway]

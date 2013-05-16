@@ -100,7 +100,7 @@ object SystemService extends SystemService {
   implicit private val configuredGatewayReads: Reads[ConfiguredGateway] = (
     (__ \ "host").read[String] ~
     (__ \ "port").read[Int] ~
-    (__ \ "configured_devices").read[List[ConfiguredDevice]]
+    (__ \ "devices").read[List[ConfiguredDevice]]
   )(ConfiguredGateway)
 
   implicit private val recordingReads: Reads[Recording] = (
@@ -108,7 +108,7 @@ object SystemService extends SystemService {
     (__ \ "status").read[String] ~
     (__ \ "start_time").read[DateTime] ~
     (__ \ "end_time").read[Option[DateTime]] ~
-    (__ \ "configured_gateways").read[List[ConfiguredGateway]]
+    (__ \ "gateways").read[List[Gateway]]
   )(Recording)
 
   implicit private val aggRecordingReads: Reads[RecordingAggregate] = (
