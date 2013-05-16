@@ -16,7 +16,7 @@
     <div class="row-fluid meters">
     @for((gateway, device, table) <- pair) {
       <div class="well span@(12/pair.length)">
-        <h4>@gateway.host:@gateway.port Unit @device.unit Table @table.id</h4>
+        <h4>@gateway.friendlyName | @device.friendlyName | @table.friendlyName</h4>
         @for(registerRow <- table.registers.grouped(12 / pair.length)) {
           <div class="row-fluid">
           @for(register <- registerRow) {
