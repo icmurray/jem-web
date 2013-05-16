@@ -11,13 +11,14 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.ws.WS
 
-import domain.{SystemStatus, Device, Gateway, RecordedRunConfiguration, Recording, ConfiguredGateway, ConfiguredDevice}
+import domain.{SystemStatus, Device, Gateway, RecordedRunConfiguration, Recording, ConfiguredGateway, ConfiguredDevice, Table, Register}
 
 trait SystemService {
   def status(implicit ec: ExecutionContext): Future[SystemStatus]
   def start(implicit ec: ExecutionContext): Future[Unit]
   def stop(implicit ec: ExecutionContext): Future[Unit]
   def attachedDevices(implicit ec: ExecutionContext): Future[List[Gateway]]
+  def updateAttachedDevices(gateways: List[Gateway])(implicit ec: ExecutionContext): Future[Unit]
   def startRecordedRun(config: RecordedRunConfiguration)(implicit ec: ExecutionContext): Future[Unit]
   def recordedRuns(implicit ec: ExecutionContext): Future[List[Recording]]
   def stopRecordedRun(id: String)(implicit ec: ExecutionContext): Future[Unit]
@@ -48,14 +49,30 @@ object SystemService extends SystemService {
     }
   }
 
+  implicit private val registerReads: Reads[Register] = (
+    (__ \ "address").read[Int] ~
+    (__ \ "label").read[Option[String]] ~
+    (__ \ "range")(0).read[Int] ~
+    (__ \ "range")(1).read[Int]
+  )(Register)
+
+  implicit private val tableReads: Reads[Table] = (
+    (__ \ "id").read[Int] ~
+    (__ \ "label").read[Option[String]] ~
+    (__ \ "registers").read[List[Register]]
+  )(Table)
+
   implicit private val deviceReads: Reads[Device] = (
     (__ \ "unit").read[Int] ~
-    (__ \ "unit").read[Int]     // Workaround for requiring > 1 field.
-  )((unit,_) => Device(unit))
+    (__ \ "type").read[String] ~
+    (__ \ "label").read[Option[String]] ~
+    (__ \ "tables").read[List[Table]]
+  )(Device)
 
   implicit private val gatewayReads: Reads[Gateway] = (
     (__ \ "host").read[String] ~
     (__ \ "port").read[Int] ~
+    (__ \ "label").read[Option[String]] ~
     (__ \ "devices").read[List[Device]]
   )(Gateway)
 
@@ -83,7 +100,7 @@ object SystemService extends SystemService {
   implicit private val configuredGatewayReads: Reads[ConfiguredGateway] = (
     (__ \ "host").read[String] ~
     (__ \ "port").read[Int] ~
-    (__ \ "configured_devices").read[List[ConfiguredDevice]]
+    (__ \ "devices").read[List[ConfiguredDevice]]
   )(ConfiguredGateway)
 
   implicit private val recordingReads: Reads[Recording] = (
@@ -91,7 +108,7 @@ object SystemService extends SystemService {
     (__ \ "status").read[String] ~
     (__ \ "start_time").read[DateTime] ~
     (__ \ "end_time").read[Option[DateTime]] ~
-    (__ \ "configured_gateways").read[List[ConfiguredGateway]]
+    (__ \ "gateways").read[List[Gateway]]
   )(Recording)
 
   implicit private val aggRecordingReads: Reads[RecordingAggregate] = (
@@ -103,6 +120,38 @@ object SystemService extends SystemService {
     (__ \ "running").read[Boolean] ~
     (__ \ "active_recordings").read[List[String]]
   )(SystemStatus)
+
+  implicit private val registerWrites = new Writes[Register] {
+    override def writes(r: Register): JsValue = {
+      Json.obj(
+        "address" -> r.address,
+        "label"   -> r.label,
+        "range"   -> JsArray(
+          List(JsNumber(r.minValue), JsNumber(r.maxValue))
+        )
+      )
+    }
+  }
+
+  implicit private val tableWrites: Writes[Table] = (
+    (__ \ "id").write[Int] ~
+    (__ \ "label").write[Option[String]] ~
+    (__ \ "registers").write[List[Register]]
+  )(unlift(Table.unapply))
+
+  implicit private val deviceWrites: Writes[Device] = (
+    (__ \ "unit").write[Int] ~
+    (__ \ "type").write[String] ~
+    (__ \ "label").write[Option[String]] ~
+    (__ \ "tables").write[List[Table]]
+  )(unlift(Device.unapply))
+
+  implicit private val gatewayWrites: Writes[Gateway] = (
+    (__ \ "host").write[String] ~
+    (__ \ "port").write[Int] ~
+    (__ \ "label").write[Option[String]] ~
+    (__ \ "devices").write[List[Device]]
+  )(unlift(Gateway.unapply))
 
   implicit private val configuredDeviceWrites: Writes[ConfiguredDevice] = (
     (__ \ "unit").write[Int] ~
@@ -162,6 +211,15 @@ object SystemService extends SystemService {
         errors => throw new RuntimeException("Bad response"),
         valid  => valid.gateways
       )
+    }
+  }
+
+
+  override def updateAttachedDevices(gateways: List[Gateway])(implicit ec: ExecutionContext) = {
+    val data = Json.toJson(gateways)
+    WS.url(devicesUrl).put(data).map {
+      case response if response.status == 200 => {}
+      case r                                  => throw new RuntimeException()
     }
   }
 

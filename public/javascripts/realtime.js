@@ -58,7 +58,9 @@ function writeToScreen(address, value) {
     if (address in Jem.realtime.valueLabels) {
       if(Jem.realtime.valueLabels[address]) {
         Jem.realtime.valueLabels[address].innerHTML = value;
-        Jem.realtime.gauges[address].set(value);
+
+        var gauge = Jem.realtime.gauges[address];
+        gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
         //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
@@ -70,7 +72,12 @@ function writeToScreen(address, value) {
         return;
       }
 
+      var valueLabel = $(meterDiv).children('.register-value-label')[0];
+      Jem.realtime.valueLabels[address] = valueLabel;
+      Jem.realtime.valueLabels[address].innerHTML = value;
+
       var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
+      Jem.realtime.gauges[address] = gauge;
       gauge.maxValue = $(meterDiv).data("register-max-value");
       gauge.minValue = $(meterDiv).data("register-min-value");
 
@@ -79,12 +86,9 @@ function writeToScreen(address, value) {
       // This greatly reduces the CPU usage on the client, although it does
       // result in jerkier movement.
       gauge.animationSpeed = 8000000;
-      gauge.set(value);
+      gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
 
-      var valueLabel = $(meterDiv).children('.register-value-label')[0];
 
-      Jem.realtime.gauges[address] = gauge;
-      Jem.realtime.valueLabels[address] = valueLabel;
 
       //var chartCanvas = document.createElement("canvas");
       //chartCanvas.width=400;

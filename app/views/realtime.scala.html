@@ -1,23 +1,23 @@
 @(recording: Option[domain.Recording])(implicit r: RequestHeader, flash: Flash)
 
-@tablesOf(gateways: List[domain.ConfiguredGateway]) = @{
+@tablesOf(gateways: List[domain.Gateway]) = @{
   for {
     gateway <- gateways
     device  <- gateway.devices
-    tableId <- device.tableIds
-  } yield (gateway, device, tableId)
+    table <- device.tables
+  } yield (gateway, device, table)
 }
 
 @main(title = "Realtime Stream") {
 
   @if(recording.isDefined) {
 
-  @for(pair <- tablesOf(recording.get.configuredGateways).grouped(2)) {
+  @for(pair <- tablesOf(recording.get.gateways).grouped(2)) {
     <div class="row-fluid meters">
-    @for((gateway, device, tableId) <- pair) {
+    @for((gateway, device, table) <- pair) {
       <div class="well span@(12/pair.length)">
-        <h4>@gateway.host:@gateway.port Unit @device.unit Table @tableId</h4>
-        @for(registerRow <- device.registers(tableId).grouped(12 / pair.length)) {
+        <h4>@gateway.friendlyName | @device.friendlyName | @table.friendlyName</h4>
+        @for(registerRow <- table.registers.grouped(12 / pair.length)) {
           <div class="row-fluid">
           @for(register <- registerRow) {
             <div class="span@(pair.length) keep-side-by-side meter"

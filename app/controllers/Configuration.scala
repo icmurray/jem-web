@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import play.api.Play.current
 
-import domain.{Gateway, Device}
+import domain.{Gateway, Device, Table, Register}
 import service.SystemService
 
 case class GatewayConfiguration(gateways: List[Gateway])
@@ -23,9 +23,26 @@ trait Configuration extends Controller
         mapping(
           "host"    -> text,
           "port"    -> number,
+          "label"   -> optional(text),
           "devices" -> list(
             mapping(
-              "unit"   -> number
+              "unit"    -> number,
+              "type"    -> text,
+              "label"   -> optional(text),
+              "tables"  -> list(
+                mapping(
+                  "id"        -> number,
+                  "label"     -> optional(text),
+                  "registers" -> list(
+                    mapping(
+                      "address" -> number,
+                      "label"   -> optional(text),
+                      "min"     -> number,
+                      "max"     -> number
+                    )(Register.apply)(Register.unapply)
+                  )
+                )(Table.apply)(Table.unapply)
+              )
             )(Device.apply)(Device.unapply)
           )
         )(Gateway.apply)(Gateway.unapply)
@@ -46,7 +63,24 @@ trait Configuration extends Controller
     }
   }
 
-  def update = TODO
+  def update = Action { implicit request =>
+    Async {
+      attachedDevicesForm.bindFromRequest.fold(
+        formErrors => future {
+          BadRequest(views.html.configuration(formErrors))
+        },
+        formData   => {
+          systemService.updateAttachedDevices(formData.gateways).map { _ =>
+            Redirect(routes.Configuration.index).flashing (
+              "success" -> "Successfully updated configuration."
+            )
+          } recover {
+            case t => backendIsDownResponse
+          }
+        }
+      )
+    }
+  }
 
 }
 
