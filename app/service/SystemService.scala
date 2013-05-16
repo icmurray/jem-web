@@ -11,7 +11,7 @@ import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.ws.WS
 
-import domain.{SystemStatus, Device, Gateway, RecordedRunConfiguration, Recording, ConfiguredGateway, ConfiguredDevice}
+import domain.{SystemStatus, Device, Gateway, RecordedRunConfiguration, Recording, ConfiguredGateway, ConfiguredDevice, Table, Register}
 
 trait SystemService {
   def status(implicit ec: ExecutionContext): Future[SystemStatus]
@@ -49,10 +49,24 @@ object SystemService extends SystemService {
     }
   }
 
+  implicit private val registerReads: Reads[Register] = (
+    (__ \ "address").read[Int] ~
+    (__ \ "label").read[Option[String]] ~
+    (__ \ "range")(0).read[Int] ~
+    (__ \ "range")(1).read[Int]
+  )(Register)
+
+  implicit private val tableReads: Reads[Table] = (
+    (__ \ "id").read[Int] ~
+    (__ \ "label").read[Option[String]] ~
+    (__ \ "registers").read[List[Register]]
+  )(Table)
+
   implicit private val deviceReads: Reads[Device] = (
     (__ \ "unit").read[Int] ~
     (__ \ "type").read[String] ~
-    (__ \ "label").read[Option[String]]
+    (__ \ "label").read[Option[String]] ~
+    (__ \ "tables").read[List[Table]]
   )(Device)
 
   implicit private val gatewayReads: Reads[Gateway] = (
@@ -107,10 +121,29 @@ object SystemService extends SystemService {
     (__ \ "active_recordings").read[List[String]]
   )(SystemStatus)
 
+  implicit private val registerWrites = new Writes[Register] {
+    override def writes(r: Register): JsValue = {
+      Json.obj(
+        "address" -> r.address,
+        "label"   -> r.label,
+        "range"   -> JsArray(
+          List(JsNumber(r.minValue), JsNumber(r.maxValue))
+        )
+      )
+    }
+  }
+
+  implicit private val tableWrites: Writes[Table] = (
+    (__ \ "id").write[Int] ~
+    (__ \ "label").write[Option[String]] ~
+    (__ \ "registers").write[List[Register]]
+  )(unlift(Table.unapply))
+
   implicit private val deviceWrites: Writes[Device] = (
     (__ \ "unit").write[Int] ~
     (__ \ "type").write[String] ~
-    (__ \ "label").write[Option[String]]
+    (__ \ "label").write[Option[String]] ~
+    (__ \ "tables").write[List[Table]]
   )(unlift(Device.unapply))
 
   implicit private val gatewayWrites: Writes[Gateway] = (

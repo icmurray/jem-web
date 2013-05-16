@@ -1,6 +1,10 @@
-@(form: Form[GatewayConfiguration])(implicit flash: Flash)
+@(form: Form[GatewayConfiguration])(implicit flash: Flash, lang: Lang)
 
 @import views.helper.bootstrap2._
+
+@hidden(field: Field) = {
+  <input type="hidden" name="@field.name" id="@field.id" value="@field.value">
+}
 
 @main(title = "Configuration") {
 
@@ -8,7 +12,7 @@
 
 @helper.form(action = routes.Configuration.update, 'class -> "form-horizontal") {
 
-  @helper.repeat(form("gateways"), min=0) { gateway =>
+  @helper.repeatWithIndex(form("gateways"), min=0) { case (gateway, gatewayIndex) =>
 
     <div class="well well-large">
 
@@ -24,30 +28,74 @@
                         '_label -> "Label:",
                         '_help -> "A human-readable label (optional)")
 
-      <h4>Attached Devices</h4>
-      <ul class="thumbnails">
+      <h3>Attached Devices</h3>
         
-        @helper.repeat(gateway("devices"), min=gateway("devices").indexes.max+1) { device =>
-        <li class="span4">
-          <div class="thumbnail">
-            <h5>Unit: @device("unit").value</h5>
+        @helper.repeatWithIndex(gateway("devices"), min=gateway("devices").indexes.max+1) { case (device, deviceIndex) =>
+        <div class="row-fluid">
+          <div class="span6">
+            <h4>Unit: @device("unit").value</h4>
             @helper.inputText(device("unit"),
-                              'class  -> "input-mini",
+                              'class  -> "input-small",
                               '_label -> "Unit Number:",
                               '_help  -> "This device's address on the RS-485 network.")
             @helper.select(device("type"), List(("diris.a40", "Diris A40")),
-                              'class  -> "input-medium",
                               '_label -> "Type",
                               '_help  -> "This device's make/model.")
             @helper.inputText(device("label"),
                               '_label -> "Label",
-                              'class  -> "input-medium",
-                              '_help  -> "A human-readable label (optional)")
+			                        '_help  -> "A human-readable label (optional)")
+
+
           </div>
-        </li>
+
+
+          @defining(gatewayIndex + "-" + deviceIndex) { deviceIdentifier =>
+          <div class="span6">
+            <h5>Customise Registers</h5>
+            <ul class="nav nav-tabs" id="register-tabs-@deviceIdentifier">
+              @helper.repeatWithIndex(device("tables"), min=0) { case (table, tableIndex) =>
+              <li class"@if(tableIndex == 0){"active"}"><a data-toggle="tab" href="#table-tab-@deviceIdentifier-@tableIndex">Table @(tableIndex+1)</a></li>
+            }
+            </ul>
+            <div class="tab-content"> 
+              @helper.repeatWithIndex(device("tables"), min=0) { case (table, tableIndex) =>
+                <div class="tab-pane @if(tableIndex == 0){"active"}" id="table-tab-@deviceIdentifier-@tableIndex">
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Address</th>
+                        <th>Label</th>
+                        <th>Min Range</th>
+                        <th>Max Range</th>
+                      </tr>
+                    </thead>
+
+                    @hidden(table("id"))
+                    @hidden(table("label"))
+
+                    @helper.repeat(table("registers"), min=0) { register =>
+                      <tr>
+                        <td>
+                          @register("address").value.get
+                          @hidden(register("address"))
+                        </td>
+                        @helper.inputText(register("label"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
+                        @helper.inputText(register("min"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
+                        @helper.inputText(register("max"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
+                      </tr>
+                    }
+
+                  </table>
+
+                </div>
+              }
+            </div>
+          </div>
+          }
+
+        </div>
         }
 
-      </ul>
 
     </div>
   }

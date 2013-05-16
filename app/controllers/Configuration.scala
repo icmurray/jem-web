@@ -9,7 +9,7 @@ import play.api.libs.concurrent.Execution.Implicits._
 import play.api.mvc._
 import play.api.Play.current
 
-import domain.{Gateway, Device}
+import domain.{Gateway, Device, Table, Register}
 import service.SystemService
 
 case class GatewayConfiguration(gateways: List[Gateway])
@@ -26,9 +26,23 @@ trait Configuration extends Controller
           "label"   -> optional(text),
           "devices" -> list(
             mapping(
-              "unit"  -> number,
-              "type"  -> text,
-              "label" -> optional(text)
+              "unit"    -> number,
+              "type"    -> text,
+              "label"   -> optional(text),
+              "tables"  -> list(
+                mapping(
+                  "id"        -> number,
+                  "label"     -> optional(text),
+                  "registers" -> list(
+                    mapping(
+                      "address" -> number,
+                      "label"   -> optional(text),
+                      "min"     -> number,
+                      "max"     -> number
+                    )(Register.apply)(Register.unapply)
+                  )
+                )(Table.apply)(Table.unapply)
+              )
             )(Device.apply)(Device.unapply)
           )
         )(Gateway.apply)(Gateway.unapply)
