@@ -85,7 +85,12 @@ function writeToScreen(address, value) {
       // the intermediate positions of the gauge when setting a new value.
       // This greatly reduces the CPU usage on the client, although it does
       // result in jerkier movement.
-      gauge.animationSpeed = 8000000;
+      gauge.animationSpeed = 8000000000000;
+
+      if(value == 0) { // workaround
+        gauge.set(-1);
+      }
+
       gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
 
 
