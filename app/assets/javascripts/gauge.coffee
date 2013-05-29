@@ -373,6 +373,79 @@ class Gauge extends BaseGauge
 		for gauge in @gp
 			gauge.update(true)
 
+class CornerGaugePointer extends GaugePointer
+
+	render: () ->
+		angle = @gauge.getAngle.call(@, @displayedValue)
+		centerX = @canvas.width
+		centerY = @canvas.height * 0.9
+
+		x = Math.round(centerX - @length * Math.cos(angle))
+		y = Math.round(centerY - @length * Math.sin(angle))
+
+		startX = Math.round(centerX + @strokeWidth * Math.cos(Math.PI / 2.0 - angle))
+		startY = Math.round(centerY - @strokeWidth * Math.sin(Math.PI / 2.0 - angle))
+
+		endX = Math.round(centerX - @strokeWidth * Math.cos(Math.PI / 2.0 - angle))
+		endY = Math.round(centerY + @strokeWidth * Math.sin(Math.PI / 2.0 - angle))
+
+		@ctx.fillStyle = @options.color
+		@ctx.beginPath()
+
+		@ctx.arc(centerX, centerY, @strokeWidth, 0, Math.PI*2, true)
+		@ctx.fill()
+
+		@ctx.beginPath()
+		@ctx.moveTo(startX, startY)
+		@ctx.lineTo(x, y)
+		@ctx.lineTo(endX, endY)
+		@ctx.fill()
+
+class CornerGauge extends Gauge
+
+	constructor: (@canvas) ->
+		super(@canvas)
+		@gp = [new CornerGaugePointer(@)]
+
+	getAngle: (value) ->
+		return (value - @minValue) / (@maxValue - @minValue) * Math.PI / 2.0
+
+	render: () ->
+		# Draw using canvas
+		w = @canvas.width
+		h = @canvas.height * (1 - @paddingBottom)
+		displayedAngle = @getAngle(@displayedValue)
+		if @textField
+			@textField.render(@)
+
+		@ctx.lineCap = "butt"
+		if @options.customFillStyle != undefined
+			fillStyle = @options.customFillStyle(@)
+		else if @percentColors != null
+			fillStyle = @getColorForValue(@displayedValue, true)
+		else if @options.colorStop != undefined
+			if @options.gradientType == 0
+				fillStyle = this.ctx.createRadialGradient(w, h, 9, w, h, 70);
+			else
+				fillStyle = this.ctx.createLinearGradient(0, 0, w, 0);
+			fillStyle.addColorStop(0, @options.colorStart)
+			fillStyle.addColorStop(1, @options.colorStop)
+		else
+			fillStyle = @options.colorStart
+		@ctx.strokeStyle = fillStyle
+
+		@ctx.beginPath()
+		@ctx.arc(w, h, @radius, Math.PI, Math.PI + displayedAngle, false)
+		@ctx.lineWidth = @lineWidth
+		@ctx.stroke()
+
+		@ctx.strokeStyle = @options.strokeColor
+		@ctx.beginPath()
+		@ctx.arc(w, h, @radius, Math.PI + displayedAngle, 3.0 * Math.PI / 2.0, false)
+		@ctx.stroke()
+		for gauge in @gp
+			gauge.update(true)
+
 
 class BaseDonut extends BaseGauge
 	lineWidth: 15
@@ -482,5 +555,6 @@ window.AnimationUpdater =
 
 window.Gauge = Gauge
 window.Donut = Donut
+window.CornerGauge = CornerGauge
 window.BaseDonut = BaseDonut
 window.TextRenderer = TextRenderer

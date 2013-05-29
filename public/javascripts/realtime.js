@@ -76,7 +76,7 @@ function writeToScreen(address, value) {
       Jem.realtime.valueLabels[address] = valueLabel;
       Jem.realtime.valueLabels[address].innerHTML = value;
 
-      var gauge = new Gauge(gaugeCanvas).setOptions(gaugeOpts);
+      var gauge = new CornerGauge(gaugeCanvas).setOptions(gaugeOpts);
       Jem.realtime.gauges[address] = gauge;
       gauge.maxValue = $(meterDiv).data("register-max-value");
       gauge.minValue = $(meterDiv).data("register-min-value");
