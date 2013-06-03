@@ -97,12 +97,6 @@ object SystemService extends SystemService {
     table5 = ids.contains(5),
     table6 = ids.contains(6)))
 
-  implicit private val configuredGatewayReads: Reads[ConfiguredGateway] = (
-    (__ \ "host").read[String] ~
-    (__ \ "port").read[Int] ~
-    (__ \ "devices").read[List[ConfiguredDevice]]
-  )(ConfiguredGateway)
-
   implicit private val recordingReads: Reads[Recording] = (
     (__ \ "id").read[String] ~
     (__ \ "status").read[String] ~
