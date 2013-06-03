@@ -377,11 +377,12 @@ class CornerGaugePointer extends GaugePointer
 
 	render: () ->
 		angle = @gauge.getAngle.call(@, @displayedValue)
-		centerX = @canvas.width
-		centerY = @canvas.height * 0.9
+		origin = @gauge.origin()
+		centerX = origin[0]
+		centerY = origin[1]
 
-		x = Math.round(centerX - @length * Math.cos(angle))
-		y = Math.round(centerY - @length * Math.sin(angle))
+		x = Math.round(centerX - @gauge.radius * Math.cos(angle))
+		y = Math.round(centerY - @gauge.radius * Math.sin(angle))
 
 		startX = Math.round(centerX + @strokeWidth * Math.cos(Math.PI / 2.0 - angle))
 		startY = Math.round(centerY - @strokeWidth * Math.sin(Math.PI / 2.0 - angle))
@@ -408,43 +409,101 @@ class CornerGauge extends Gauge
 		@gp = [new CornerGaugePointer(@)]
 
 	getAngle: (value) ->
-		return (value - @minValue) / (@maxValue - @minValue) * Math.PI / 2.0
+		angle = (value - @minValue) / (@maxValue - @minValue) * Math.PI / 2.0
+		return Math.min(Math.PI / 2.0, Math.max(0.0, angle))
+
+	setOptions: (options=null) ->
+		super(options)
+		@configPercentColors()
+
+		# TODO: from options...
+		@majorTickWidth = 4
+		@majorTickLength = 10
+		@majorTicks = 4
+		@majorTickLabelWidth = 20
+		@minorTickWidth = 1
+		@minorTickLength = 5
+		@minorTicks = 4
+
+		@paddingBottom = @majorTickWidth / 2
+		@paddingRight  = Math.max(@majorTickWidth / 2, @majorTickLabelWidth)
+
+		@radius = Math.min(@canvas.width - @paddingRight,
+												@canvas.height - @paddingBottom)
+
+		@ctx.clearRect(0, 0, @canvas.width, @canvas.height)
+		@render()
+		for gauge in @gp
+			gauge.setOptions(@options.pointer)
+			gauge.render()
+		return @
 
 	render: () ->
-		# Draw using canvas
-		w = @canvas.width
-		h = @canvas.height * (1 - @paddingBottom)
-		displayedAngle = @getAngle(@displayedValue)
-		if @textField
-			@textField.render(@)
 
-		@ctx.lineCap = "butt"
-		if @options.customFillStyle != undefined
-			fillStyle = @options.customFillStyle(@)
-		else if @percentColors != null
-			fillStyle = @getColorForValue(@displayedValue, true)
-		else if @options.colorStop != undefined
-			if @options.gradientType == 0
-				fillStyle = this.ctx.createRadialGradient(w, h, 9, w, h, 70);
-			else
-				fillStyle = this.ctx.createLinearGradient(0, 0, w, 0);
-			fillStyle.addColorStop(0, @options.colorStart)
-			fillStyle.addColorStop(1, @options.colorStop)
-		else
-			fillStyle = @options.colorStart
-		@ctx.strokeStyle = fillStyle
+		@renderScale()
 
-		@ctx.beginPath()
-		@ctx.arc(w, h, @radius, Math.PI, Math.PI + displayedAngle, false)
-		@ctx.lineWidth = @lineWidth
-		@ctx.stroke()
-
-		@ctx.strokeStyle = @options.strokeColor
-		@ctx.beginPath()
-		@ctx.arc(w, h, @radius, Math.PI + displayedAngle, 3.0 * Math.PI / 2.0, false)
-		@ctx.stroke()
 		for gauge in @gp
 			gauge.update(true)
+
+	origin: () ->
+		return [@canvas.width - @paddingRight, @canvas.height - @paddingBottom]
+
+	renderTick: (angle, tickWidth, tickLength, text=null) ->
+		@ctx.strokeStyle = @options.colorStart		# TODO: from options
+		@ctx.lineWidth = tickWidth
+		
+		origin = @origin()
+		w = origin[0]
+		h = origin[1]
+
+		cosAngle = Math.cos(angle)	# TODO: precompute these
+		sinAngle = Math.sin(angle)
+
+		x = Math.round(w - @radius * cosAngle)
+		y = Math.round(h - @radius * sinAngle)
+
+		endX = Math.round(w - (@radius - tickLength) * cosAngle)
+		endY = Math.round(h - (@radius - tickLength) * sinAngle)
+
+		textPadding = 8
+		textX = Math.round(w - (@radius - tickLength - textPadding) * cosAngle)
+		textY = Math.round(h - (@radius - tickLength - textPadding) * sinAngle)
+
+		@ctx.beginPath()
+		@ctx.moveTo(x, y)
+		@ctx.lineTo(endX, endY)
+		@ctx.stroke()
+
+		if text != null
+			if @ctx.measureText(text).width < @canvas.width - textX
+				@ctx.fillText(text, textX, textY, @canvas.width - textX)
+
+	renderScale: () ->
+
+		@ctx.strokeStyle = @options.colorStart		# TODO: from options
+		@ctx.lineWidth = @majorTickWidth
+
+		origin = @origin()
+		w = origin[0]
+		h = origin[1]
+
+		majorAngle = Math.PI / 2.0 / @majorTicks
+		for majorTick in [0..@majorTicks]
+
+			angle = majorTick * majorAngle
+
+			if @maxValue == 80
+				console.log "Got one"
+
+			value = Math.round(@minValue + (@maxValue - @minValue) * majorTick / @majorTicks)
+
+			@renderTick(angle, @majorTickWidth, @majorTickLength, ""+value)
+
+			if majorTick < @majorTicks
+				for minorTick in [1..@minorTicks]
+					angle = (majorTick + (minorTick / (1 + @minorTicks))) * majorAngle
+					@renderTick(angle, @minorTickWidth, @minorTickLength)
+
 
 
 class BaseDonut extends BaseGauge

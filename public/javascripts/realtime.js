@@ -7,8 +7,8 @@ Jem.realtime.charts = {};
 
 var gaugeOpts = {
 lines: 12, // The number of lines to draw
-       angle: 0.15, // The length of each line
-       lineWidth: 0.44, // The line thickness
+       angle: 0.25, // The length of each line
+       lineWidth: 0.5, // The line thickness
        pointer: {
 length: 0.9, // The radius of the inner circle
         strokeWidth: 0.035, // The rotation offset
@@ -60,7 +60,8 @@ function writeToScreen(address, value) {
         Jem.realtime.valueLabels[address].innerHTML = value;
 
         var gauge = Jem.realtime.gauges[address];
-        gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
+        //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
+				gauge.set(value)
         //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
@@ -88,10 +89,11 @@ function writeToScreen(address, value) {
       gauge.animationSpeed = 8000000000000;
 
       if(value == 0) { // workaround
-        gauge.set(-1);
+        gauge.set(1);
       }
 
-      gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
+      //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
+			gauge.set(value);
 
 
 
