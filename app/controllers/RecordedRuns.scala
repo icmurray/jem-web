@@ -23,6 +23,7 @@ trait RecordedRuns extends Controller
           "port"    -> number,
           "devices" -> list(
             mapping(
+              "enabled"-> boolean,
               "unit"   -> number,
               "table1" -> boolean,
               "table2" -> boolean,
@@ -30,12 +31,30 @@ trait RecordedRuns extends Controller
               "table4" -> boolean,
               "table5" -> boolean,
               "table6" -> boolean
-            )(ConfiguredDevice.apply)(ConfiguredDevice.unapply)
+            )(dataToConfiguredDevice _)(configuredDeviceToData _)
           )
         )(ConfiguredGateway.apply)(ConfiguredGateway.unapply)
       )
     )(RecordedRunConfiguration.apply)(RecordedRunConfiguration.unapply)
   )
+
+  private def dataToConfiguredDevice(
+    enabled: Boolean,
+    unit: Int,
+    table1: Boolean, table2: Boolean, table3: Boolean,
+    table4: Boolean, table5: Boolean, table6: Boolean): ConfiguredDevice = {
+
+    ConfiguredDevice(
+      unit,
+      enabled && table1, enabled && table2, enabled && table3,
+      enabled && table4, enabled && table5, enabled && table6)
+  }
+
+  private def configuredDeviceToData(device: ConfiguredDevice) = {
+    Some(true, device.unit,
+     device.table1, device.table2, device.table3,
+     device.table3, device.table5, device.table6)
+  }
 
   def systemService: SystemService
 

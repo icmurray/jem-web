@@ -72,44 +72,32 @@
 
 @helper.form(action = routes.RecordedRuns.create, 'class -> "form-horizontal") {
 
+  <div class="row-fluid">
   @helper.repeat(form("selections"), min=0) { gateway =>
 
-    <div class="well well-large">
+    <div class="well well-large span4">
 
       <h3>Gateway: @gateway("host").value:@gateway("port").value</h3>
 
       @hidden(gateway("host"))
       @hidden(gateway("port"))
 
-      <ul class="thumbnails">
-        
-        @helper.repeat(gateway("devices"), min=0) { device =>
-        <li class="span4">
-          <div class="thumbnail">
-            <h4>Unit @device("unit").value</h4>
-            @hidden(device("unit"))
-            <div class="control-group">
-              <label class="control-label">Tables to record:</label>
-              <div class="controls">
-                @checkbox(device("table1"), '_label -> "Table 1")
-                @checkbox(device("table2"), '_label -> "Table 2")
-                @checkbox(device("table3"), '_label -> "Table 3")
-                @checkbox(device("table4"), '_label -> "Table 4")
-                @checkbox(device("table5"), '_label -> "Table 5")
-                @checkbox(device("table6"), '_label -> "Table 6")
-              </div>
-            </div>
-          </div>
-        </li>
-        }
+      @helper.repeat(gateway("devices"), min=0) { device =>
+        @checkbox(device("enabled"), '_label -> ("Unit " + device("unit").value.getOrElse("")))
 
-      </ul>
-
-
+        @hidden(device("unit"))
+        @hidden(device("table1"))
+        @hidden(device("table2"))
+        @hidden(device("table3"))
+        @hidden(device("table4"))
+        @hidden(device("table5"))
+        @hidden(device("table6"))
+      }
 
     </div>
   }
 
+  </div>
   <button class="pull-right btn btn-success btn-large"
 	  type="submit"
 	  name="submit-form"
