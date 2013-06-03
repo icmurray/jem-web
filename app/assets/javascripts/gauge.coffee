@@ -381,14 +381,17 @@ class CornerGaugePointer extends GaugePointer
 		centerX = origin[0]
 		centerY = origin[1]
 
-		x = Math.round(centerX - @gauge.radius * Math.cos(angle))
-		y = Math.round(centerY - @gauge.radius * Math.sin(angle))
+		cosAngle = Math.cos(angle)
+		sinAngle = Math.sin(angle)
 
-		startX = Math.round(centerX + @strokeWidth * Math.cos(Math.PI / 2.0 - angle))
-		startY = Math.round(centerY - @strokeWidth * Math.sin(Math.PI / 2.0 - angle))
+		x = Math.round(centerX - @gauge.radius * cosAngle)
+		y = Math.round(centerY - @gauge.radius * sinAngle)
 
-		endX = Math.round(centerX - @strokeWidth * Math.cos(Math.PI / 2.0 - angle))
-		endY = Math.round(centerY + @strokeWidth * Math.sin(Math.PI / 2.0 - angle))
+		startX = Math.round(centerX + @strokeWidth * sinAngle)
+		startY = Math.round(centerY - @strokeWidth * cosAngle)
+
+		endX = Math.round(centerX - @strokeWidth * sinAngle)
+		endY = Math.round(centerY + @strokeWidth * cosAngle)
 
 		@ctx.fillStyle = @options.color
 		@ctx.beginPath()
@@ -491,10 +494,6 @@ class CornerGauge extends Gauge
 		for majorTick in [0..@majorTicks]
 
 			angle = majorTick * majorAngle
-
-			if @maxValue == 80
-				console.log "Got one"
-
 			value = Math.round(@minValue + (@maxValue - @minValue) * majorTick / @majorTicks)
 
 			@renderTick(angle, @majorTickWidth, @majorTickLength, ""+value)
