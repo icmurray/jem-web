@@ -16,7 +16,8 @@ case class RecordedRunConfiguration(
 case class ConfiguredGateway(
   host: String,
   port: Int,
-  devices: List[ConfiguredDevice])
+  devices: List[ConfiguredDevice],
+  label: Option[String] = None)
 
 case class ConfiguredDevice(
     unit: Int,
@@ -25,7 +26,8 @@ case class ConfiguredDevice(
     table3: Boolean = false,
     table4: Boolean = false,
     table5: Boolean = false,
-    table6: Boolean = false)
+    table6: Boolean = false,
+    label: Option[String] = None)
 
 case class ConfiguredRegister(
     address: Int,

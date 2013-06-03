@@ -25,6 +25,7 @@ trait RecordedRuns extends Controller
             mapping(
               "enabled"-> boolean,
               "unit"   -> number,
+              "label"  -> optional(text),
               "table1" -> boolean,
               "table2" -> boolean,
               "table3" -> boolean,
@@ -32,26 +33,27 @@ trait RecordedRuns extends Controller
               "table5" -> boolean,
               "table6" -> boolean
             )(dataToConfiguredDevice _)(configuredDeviceToData _)
-          )
+          ),
+          "label"   -> optional(text)
         )(ConfiguredGateway.apply)(ConfiguredGateway.unapply)
       )
     )(RecordedRunConfiguration.apply)(RecordedRunConfiguration.unapply)
   )
 
   private def dataToConfiguredDevice(
-    enabled: Boolean,
-    unit: Int,
+    enabled: Boolean, unit: Int, label: Option[String],
     table1: Boolean, table2: Boolean, table3: Boolean,
     table4: Boolean, table5: Boolean, table6: Boolean): ConfiguredDevice = {
 
     ConfiguredDevice(
       unit,
       enabled && table1, enabled && table2, enabled && table3,
-      enabled && table4, enabled && table5, enabled && table6)
+      enabled && table4, enabled && table5, enabled && table6,
+      label)
   }
 
   private def configuredDeviceToData(device: ConfiguredDevice) = {
-    Some(true, device.unit,
+    Some(true, device.unit, device.label,
      device.table1, device.table2, device.table3,
      device.table3, device.table5, device.table6)
   }
@@ -76,8 +78,11 @@ trait RecordedRuns extends Controller
               host=gateway.host,
               port=gateway.port,
               devices=gateway.devices.map { device =>
-                ConfiguredDevice(device.unit)
-              }
+                ConfiguredDevice(
+                  unit=device.unit,
+                  label=device.label)
+              },
+              label=gateway.label
             ))
           )
         )

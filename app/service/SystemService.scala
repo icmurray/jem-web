@@ -155,17 +155,20 @@ object SystemService extends SystemService {
 
   implicit private val configuredDeviceWrites: Writes[ConfiguredDevice] = (
     (__ \ "unit").write[Int] ~
-    (__ \ "table_ids").write[List[Int]]
+    (__ \ "table_ids").write[List[Int]] ~
+    (__ \ "label").write[Option[String]]
   )(d => (
     d.unit,
     List(d.table1, d.table2, d.table3,
-         d.table4, d.table5, d.table6).zipWithIndex.filter(_._1).map(_._2+1)
+         d.table4, d.table5, d.table6).zipWithIndex.filter(_._1).map(_._2+1),
+    d.label
   ))
 
   implicit private val configuredGatewayWrites: Writes[ConfiguredGateway] = (
     (__ \ "host").write[String] ~
     (__ \ "port").write[Int] ~
-    (__ \ "configured_devices").write[List[ConfiguredDevice]]
+    (__ \ "configured_devices").write[List[ConfiguredDevice]] ~
+    (__ \ "label").write[Option[String]]
   )(unlift(ConfiguredGateway.unapply))
 
   override def recordedRuns(implicit ec: ExecutionContext) = {

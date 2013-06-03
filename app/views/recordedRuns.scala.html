@@ -77,15 +77,17 @@
 
     <div class="well well-large span4">
 
-      <h3>Gateway: @gateway("host").value:@gateway("port").value</h3>
+      <h3>@gateway("label").value.getOrElse(gateway("host").value.getOrElse("") + ":" + gateway("port").value.getOrElse(""))</h3>
 
       @hidden(gateway("host"))
       @hidden(gateway("port"))
+      @hidden(gateway("label"))
 
       @helper.repeat(gateway("devices"), min=0) { device =>
-        @checkbox(device("enabled"), '_label -> ("Unit " + device("unit").value.getOrElse("")))
+        @checkbox(device("enabled"), '_label -> (device("label").value.getOrElse( "Unit: " + device("unit").value.getOrElse("") )))
 
         @hidden(device("unit"))
+        @hidden(device("label"))
         @hidden(device("table1"))
         @hidden(device("table2"))
         @hidden(device("table3"))
