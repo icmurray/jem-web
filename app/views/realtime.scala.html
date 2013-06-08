@@ -1,16 +1,17 @@
 @(recording: Option[domain.Recording])(implicit r: RequestHeader, flash: Flash)
 
-@tablesOf(gateways: List[domain.Gateway]) = @{
+@devicesOf(gateways: List[domain.Gateway]) = @{
   for {
     gateway <- gateways
     device  <- gateway.devices
-    table <- device.tables
-    if Set(1,2) contains table.id
-  } yield (gateway, device, table)
+    if device.tables != Nil
+  } yield (gateway, device)
 }
 
-@registersOf(table: domain.Table) = @{
+@registersOf(device: domain.Device) = @{
   for {
+    table <- device.tables
+    if Set(1,2) contains table.id
     register <- table.registers
     if table.id == 1 ||
       (table.id == 2 && ((0xC652 to 0xC65A) contains register.address))
@@ -21,12 +22,12 @@
 
   @if(recording.isDefined) {
 
-  @for(pair <- tablesOf(recording.get.gateways).grouped(2)) {
+  @for(pair <- devicesOf(recording.get.gateways).grouped(2)) {
     <div class="row-fluid meters">
-    @for((gateway, device, table) <- pair) {
+    @for((gateway, device) <- pair) {
       <div class="well span@(12/pair.length)">
-        <h4>@gateway.friendlyName | @device.friendlyName | @table.friendlyName</h4>
-        @for(registerRow <- registersOf(table).grouped(12 / pair.length)) {
+        <h4>@gateway.friendlyName | @device.friendlyName</h4>
+        @for(registerRow <- registersOf(device).grouped(12 / pair.length)) {
           <div class="row-fluid">
           @for(register <- registerRow) {
             <div class="span@(pair.length) keep-side-by-side meter"
