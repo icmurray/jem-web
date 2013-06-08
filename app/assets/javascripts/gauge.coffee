@@ -406,6 +406,7 @@ class CornerGaugePointer extends GaugePointer
 		@ctx.fill()
 
 class CornerGauge extends Gauge
+	unitLabel: ""
 
 	constructor: (@canvas) ->
 		super(@canvas)
@@ -502,6 +503,12 @@ class CornerGauge extends Gauge
 				for minorTick in [1..@minorTicks]
 					angle = (majorTick + (minorTick / (1 + @minorTicks))) * majorAngle
 					@renderTick(angle, @minorTickWidth, @minorTickLength)
+
+    if @unitLabel != null && @unitLabel != ""
+      oldFont = @ctx.font
+      @ctx.font = "bold 16px sans-serif"
+      @ctx.fillText(@unitLabel, 0, 16)
+      @ctx.font = oldFont
 
 
 

@@ -81,6 +81,7 @@ function writeToScreen(address, value) {
       Jem.realtime.gauges[address] = gauge;
       gauge.maxValue = $(meterDiv).data("register-max-value");
       gauge.minValue = $(meterDiv).data("register-min-value");
+      gauge.unitLabel = $(meterDiv).data("register-unit-of-measurement");
 
       // By setting the animation speed so high, we don't try to animate
       // the intermediate positions of the gauge when setting a new value.

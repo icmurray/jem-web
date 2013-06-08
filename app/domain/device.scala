@@ -4,7 +4,8 @@ case class Register(
     address: Int,
     label: Option[String],
     minValue: Int,
-    maxValue: Int)
+    maxValue: Int,
+    unitOfMeasurement: Option[String])
 
 case class Table(
     id: Int,

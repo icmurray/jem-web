@@ -53,7 +53,8 @@ object SystemService extends SystemService {
     (__ \ "address").read[Int] ~
     (__ \ "label").read[Option[String]] ~
     (__ \ "range")(0).read[Int] ~
-    (__ \ "range")(1).read[Int]
+    (__ \ "range")(1).read[Int] ~
+    (__ \ "unit_of_measurement").read[Option[String]]
   )(Register)
 
   implicit private val tableReads: Reads[Table] = (
@@ -122,7 +123,8 @@ object SystemService extends SystemService {
         "label"   -> r.label,
         "range"   -> JsArray(
           List(JsNumber(r.minValue), JsNumber(r.maxValue))
-        )
+        ),
+        "unit_of_measurement" -> r.unitOfMeasurement
       )
     }
   }

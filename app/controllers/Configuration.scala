@@ -35,10 +35,11 @@ trait Configuration extends Controller
                   "label"     -> optional(text),
                   "registers" -> list(
                     mapping(
-                      "address" -> number,
-                      "label"   -> optional(text),
-                      "min"     -> number,
-                      "max"     -> number
+                      "address"           -> number,
+                      "label"             -> optional(text),
+                      "min"               -> number,
+                      "max"               -> number,
+                      "unitOfMeasurement" -> optional(text)
                     )(Register.apply)(Register.unapply)
                   )
                 )(Table.apply)(Table.unapply)
