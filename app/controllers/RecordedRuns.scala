@@ -80,6 +80,8 @@ trait RecordedRuns extends Controller
               devices=gateway.devices.map { device =>
                 ConfiguredDevice(
                   unit=device.unit,
+                  table1=true, table2=true, table3=false,
+                  table4=false, table5=true, table6=false,
                   label=device.label)
               },
               label=gateway.label

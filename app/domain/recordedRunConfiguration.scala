@@ -21,12 +21,12 @@ case class ConfiguredGateway(
 
 case class ConfiguredDevice(
     unit: Int,
-    table1: Boolean = true,
-    table2: Boolean = true,
-    table3: Boolean = false,
-    table4: Boolean = false,
-    table5: Boolean = false,
-    table6: Boolean = false,
+    table1: Boolean,
+    table2: Boolean,
+    table3: Boolean,
+    table4: Boolean,
+    table5: Boolean,
+    table6: Boolean,
     label: Option[String] = None)
 
 case class ConfiguredRegister(

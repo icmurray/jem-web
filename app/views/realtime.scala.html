@@ -5,7 +5,16 @@
     gateway <- gateways
     device  <- gateway.devices
     table <- device.tables
+    if Set(1,2) contains table.id
   } yield (gateway, device, table)
+}
+
+@registersOf(table: domain.Table) = @{
+  for {
+    register <- table.registers
+    if table.id == 1 ||
+      (table.id == 2 && ((0xC652 to 0xC65A) contains register.address))
+  } yield register
 }
 
 @main(title = "Realtime Stream") {
@@ -17,7 +26,7 @@
     @for((gateway, device, table) <- pair) {
       <div class="well span@(12/pair.length)">
         <h4>@gateway.friendlyName | @device.friendlyName | @table.friendlyName</h4>
-        @for(registerRow <- table.registers.grouped(12 / pair.length)) {
+        @for(registerRow <- registersOf(table).grouped(12 / pair.length)) {
           <div class="row-fluid">
           @for(register <- registerRow) {
             <div class="span@(pair.length) keep-side-by-side meter"
