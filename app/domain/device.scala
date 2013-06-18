@@ -5,7 +5,10 @@ case class Register(
     label: Option[String],
     minValue: Int,
     maxValue: Int,
-    unitOfMeasurement: Option[String])
+    unitOfMeasurement: Option[String]) {
+
+  val friendlyName = label getOrElse label.toString
+}
 
 case class Table(
     id: Int,

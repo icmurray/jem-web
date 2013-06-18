@@ -12,6 +12,7 @@ POST    /system/stop                controllers.System.stop
 
 GET     /recorded-runs              controllers.RecordedRuns.index
 GET     /recorded-runs/:id          controllers.RecordedRuns.details(id)
+GET     /recorded-runs/:id/$host<[^/:]+>$colon<:>$port<[^/]+>/:unit/:table/archive   controllers.RecordedRuns.archive(id: String, host: String, port: Int, unit: Int, table: Int, colon)
 POST    /recorded-runs              controllers.RecordedRuns.create
 POST    /recorded-runs/:id/stop     controllers.RecordedRuns.stop(id)
 

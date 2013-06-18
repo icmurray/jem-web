@@ -1,0 +1,23 @@
+@(recording: domain.Recording)(implicit flash: Flash, lang: Lang)
+
+@tablesOf(gateways: List[domain.Gateway]) = @{
+  for {
+    gateway <- gateways
+    device  <- gateway.devices
+    table   <- device.tables
+  } yield (gateway, device, table)
+}
+
+@main(title = "Recorded Run " + recording.id) {
+
+<h1>Recording: @recording.id</h1>
+
+<ul>
+  @for((gateway, device, table) <- tablesOf(recording.gateways)) {
+  <li>
+  <a href="@routes.RecordedRuns.archive(recording.id, gateway.host, gateway.port, device.unit, table.id, ":")">Download Data</a>
+  </li>
+  }
+</ul>
+
+}
