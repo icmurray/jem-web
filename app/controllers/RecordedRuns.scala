@@ -204,60 +204,6 @@ trait RecordedRuns extends Controller
     }
   }
 
-  private def archivedData(rec: Recording, gw: Gateway, device: Device) = {
-
-    val registers = (for {
-      table <- device.tables
-      register <- table.registers
-    } yield register).sortBy(_.address)
-      
-    val columns = registers.map(_.address).zipWithIndex.map(_.swap).toMap
-    println(columns)
-
-    val header = "\"timestamp\"," ++ registers.map(_.address.toString).mkString(",") ++ "\n"
-
-    val query = Json.obj(
-      "device.gateway.host" -> gw.host,
-      "device.gateway.port" -> gw.port,
-      "device.unit"         -> device.unit
-    )
-
-    val projection = Json.obj(
-      "values" -> 1,
-      "timing_info.end" -> 1,
-      "_id" -> 0
-    )
-
-    val collection = db.collection[JSONCollection](s"archive-${rec.id}")
-    val cursor = collection.find(query, projection).cursor[JsValue]
-    Enumerator(header) >>> cursor.enumerate.map { js =>
-
-      val timestamp = (js \ "timing_info" \ "end").as[Double]
-      val values = (js \ "values").as[List[List[Int]]]
-                                  .map((pair: List[Int]) => (pair(0), pair(1)))
-                                  .toMap
-      val cells = (0 until registers.length).map { idx =>
-        val addr: Int = columns(idx)
-        values.get(addr).map(_.toString).getOrElse("")
-      }
-      (List(timestamp.toString) ++ cells).mkString(",") + "\n"
-    }
-
-    //Enumerator.outputStream { os =>
-    //  val out = new DataOutputStream(os)
-
-    //  val registers = for {
-    //    table <- device.tables
-    //    register <- table.registers
-    //  } yield register
-
-    //  val heading = csvRow(registers.map(_.friendlyName))
-    //  out.writeChars(heading)
-
-    //  out.close()
-    //}
-  }
-
   private def csvRow(ss: Seq[String]) = {
     ss.map(csvColumn _).mkString(",") + "\n"
   }
