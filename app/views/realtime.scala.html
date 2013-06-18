@@ -13,8 +13,8 @@
     table <- device.tables
     if Set(1,2) contains table.id
     register <- table.registers
-    if table.id == 1 ||
-      (table.id == 2 && ((0xC652 to 0xC65A) contains register.address))
+    if (table.id == 1 && (register.address < 0xC588)) ||
+       (table.id == 2 && ((0xC652 to 0xC65A) contains register.address))
   } yield register
 }
 
