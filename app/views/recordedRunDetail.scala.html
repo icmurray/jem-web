@@ -12,12 +12,32 @@
 
 <h1>Recording: @recording.id</h1>
 
+<h2>Download Archived Data</h2>
+<table class="table table-striped table-hover">
+  <thead>
+    <tr>
+    <th>Gateway</th>
+    <th>Device</th>
+    <th>Table</th>
+  </tr>
+  </thead>
+
+  <tbody>
+    @for((gateway, device, table) <- tablesOf(recording.gateways)) {
+    <tr>
+      <td>@gateway.friendlyName</td>
+      <td>@device.friendlyName</td>
+      <td>
+        <a href="@routes.RecordedRuns.archive(recording.id, gateway.host, gateway.port, device.unit, table.id, ":")">
+        @table.friendlyName
+        </a>
+      </td>
+    </tr>
+    }
+  </tbody>
+</table>
+
 <ul>
-  @for((gateway, device, table) <- tablesOf(recording.gateways)) {
-  <li>
-  <a href="@routes.RecordedRuns.archive(recording.id, gateway.host, gateway.port, device.unit, table.id, ":")">Download Data</a>
-  </li>
-  }
 </ul>
 
 }
