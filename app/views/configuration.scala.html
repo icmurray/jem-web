@@ -30,75 +30,76 @@
 
       <h3>Attached Devices</h3>
         
-        @helper.repeatWithIndex(gateway("devices"), min=gateway("devices").indexes.max+1) { case (device, deviceIndex) =>
-        <div class="row-fluid">
-          <div class="span6">
-            <h4>Unit: @device("unit").value</h4>
-            @helper.inputText(device("unit"),
-                              'class  -> "input-small",
-                              '_label -> "Unit Number:",
-                              '_help  -> "This device's address on the RS-485 network.")
-            @helper.select(device("type"), List(("diris.a40", "Diris A40")),
-                              '_label -> "Type",
-                              '_help  -> "This device's make/model.")
-            @helper.inputText(device("label"),
-                              '_label -> "Label",
-			                        '_help  -> "A human-readable label (optional)")
+      @helper.repeatWithIndex(gateway("devices"), min=gateway("devices").indexes.max+1) { case (device, deviceIndex) =>
+      <div class="row-fluid">
+        @defining(gatewayIndex + "-" + deviceIndex) { deviceIdentifier =>
+        <div class="span12">
+          <h4>Unit: @device("unit").value</h4>
 
+          <ul class="nav nav-tabs" id="@deviceIdentifier-tabs">
+            <li class="active"><a data-toggle="tab" href="#@deviceIdentifier-basic-tab">Basics</a></li>
+            <li>               <a data-toggle="tab" href="#@deviceIdentifier-range-tab">Gauge Ranges</a></li>
+          </ul>
 
-          </div>
+          <div class="tab-content">
+            <div class="tab-pane active" id="@deviceIdentifier-basic-tab">
+              @helper.inputText(device("unit"),
+                                'class  -> "input-small",
+                                '_label -> "Unit Number:",
+                                '_help  -> "This device's address on the RS-485 network.")
+              @helper.select(device("type"), List(("diris.a40", "Diris A40")),
+                                '_label -> "Type",
+                                '_help  -> "This device's make/model.")
+              @helper.inputText(device("label"),
+                                '_label -> "Label",
+                                '_help  -> "A human-readable label (optional)")
+            </div>
 
-
-          @defining(gatewayIndex + "-" + deviceIndex) { deviceIdentifier =>
-          <div class="span6">
-            <h5>Customise Registers</h5>
-            <ul class="nav nav-tabs" id="register-tabs-@deviceIdentifier">
+            <div class="tab-pane" id="@deviceIdentifier-range-tab">
               @helper.repeatWithIndex(device("tables"), min=0) { case (table, tableIndex) =>
-              <li class"@if(tableIndex == 0){"active"}"><a data-toggle="tab" href="#table-tab-@deviceIdentifier-@tableIndex">Table @(tableIndex+1)</a></li>
-            }
-            </ul>
-            <div class="tab-content"> 
-              @helper.repeatWithIndex(device("tables"), min=0) { case (table, tableIndex) =>
-                <div class="tab-pane @if(tableIndex == 0){"active"}" id="table-tab-@deviceIdentifier-@tableIndex">
-                  <table class="table table-bordered">
-                    <thead>
-                      <tr>
-                        <th>Address</th>
-                        <th>Label</th>
-                        <th>Min Range</th>
-                        <th>Max Range</th>
-                        <th>Unit</th>
-                      </tr>
-                    </thead>
 
-                    @hidden(table("id"))
-                    @hidden(table("label"))
+                @hidden(table("id"))
+                @hidden(table("label"))
+                @if(table("id").value.get == "1") {
+                  @helper.repeat(table("registers"), min=0) { register =>
 
-                    @helper.repeat(table("registers"), min=0) { register =>
-                      <tr>
-                        <td>
-                          @register("address").value.get
-                          @hidden(register("address"))
-                        </td>
-                        @helper.inputText(register("label"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
-                        @helper.inputText(register("min"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
-                        @helper.inputText(register("max"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
-                        @helper.inputText(register("unitOfMeasurement"), 'class -> "input-block-level")(views.helper.simpleTableFieldConstructor, lang)
-                      </tr>
+                    @if(register("address").value.get.toInt < 0xC582) {
+                      <div class="control-group">
+                        <label class="control-label">@register("label").value.get:</label>
+                        <div class="controls">
+                          <div class="input-append input-prepend">
+                            @helper.inputText(register("min"), 'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
+                            <span class="add-on">to</span>
+                            @helper.inputText(register("max"), 'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
+                            <span class="add-on">@register("unitOfMeasurement").value.get</span>
+                          </div>
+                        </div>
+                      </div>
+                    } else {
+                      @hidden(register("min"))
+                      @hidden(register("max"))
                     }
 
-                  </table>
-
-                </div>
+                    @hidden(register("address"))
+                    @hidden(register("label"))
+                    @hidden(register("unitOfMeasurement"))
+                  }
+                } else {
+                  @helper.repeat(table("registers"), min=0) { register =>
+                    @hidden(register("address"))
+                    @hidden(register("label"))
+                    @hidden(register("min"))
+                    @hidden(register("max"))
+                    @hidden(register("unitOfMeasurement"))
+                  }
+                }
               }
             </div>
           </div>
-          }
-
         </div>
         }
-
-
+      </div>
+      }
     </div>
   }
 
