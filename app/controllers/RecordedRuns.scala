@@ -148,6 +148,7 @@ trait RecordedRuns extends Controller
               unit: Int,
               table: Int, dummy: String = ":") = Action { implicit request =>
     Async {
+      val filename = s"${id}-${host}:${port}-${unit}-${table}-archive.csv"
       systemService.recordingDetail(id).map { oRec =>
         for {
           rec <- oRec
@@ -160,8 +161,8 @@ trait RecordedRuns extends Controller
         case Some((rec, gw, device, table)) => Ok.stream(
           archivedData(rec, gw, device, table) >>> Enumerator.eof
         ).withHeaders(
-          "Content-Type"->"application/csv",
-          "Content-Disposition"->"attachment; filename=test.csv"
+          "Content-Type" -> "application/csv",
+          "Content-Disposition" -> s"attachment; filename=${filename}"
         )
       }
     }
