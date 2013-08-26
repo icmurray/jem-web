@@ -14,7 +14,7 @@
     if Set(1,2) contains table.id
     register <- table.registers
     if (table.id == 1 && (register.address < 0xC588)) ||
-       (table.id == 2 && ((0xC652 to 0xC65A) contains register.address))
+       (table.id == 2 && ((0xC65C to 0xC664) contains register.address))
   } yield register
 }
 
