@@ -4,7 +4,7 @@ case class Register(
     address: Int,
     label: Option[String],
     minValue: Int,
-    maxValue: Int,
+    maxValue: Option[Int],
     unitOfMeasurement: Option[String]) {
 
   val friendlyName = label getOrElse label.toString

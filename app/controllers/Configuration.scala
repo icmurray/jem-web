@@ -38,7 +38,7 @@ trait Configuration extends Controller
                       "address"           -> number,
                       "label"             -> optional(text),
                       "min"               -> number,
-                      "max"               -> number,
+                      "max"               -> optional(number),
                       "unitOfMeasurement" -> optional(text)
                     )(Register.apply)(Register.unapply)
                   )

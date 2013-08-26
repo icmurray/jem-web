@@ -79,7 +79,14 @@ function writeToScreen(address, value) {
 
       var gauge = new CornerGauge(gaugeCanvas).setOptions(gaugeOpts);
       Jem.realtime.gauges[address] = gauge;
-      gauge.maxValue = $(meterDiv).data("register-max-value");
+
+      // Allow for open-ended max values
+      if($(meterDiv).data("register-max-value")) {
+        gauge.maxValue = $(meterDiv).data("register-max-value");
+      } else {
+        gauge.maxValue = Math.max(value, $(meterDiv).data("register-min-value")) * 2.0
+      }
+
       gauge.minValue = $(meterDiv).data("register-min-value");
       gauge.unitLabel = $(meterDiv).data("register-unit-of-measurement");
 

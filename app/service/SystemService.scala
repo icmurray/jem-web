@@ -53,7 +53,7 @@ object SystemService extends SystemService {
     (__ \ "address").read[Int] ~
     (__ \ "label").read[Option[String]] ~
     (__ \ "range")(0).read[Int] ~
-    (__ \ "range")(1).read[Int] ~
+    (__ \ "range")(1).read[Option[Int]] ~
     (__ \ "unit_of_measurement").read[Option[String]]
   )(Register)
 
@@ -121,9 +121,14 @@ object SystemService extends SystemService {
       Json.obj(
         "address" -> r.address,
         "label"   -> r.label,
-        "range"   -> JsArray(
-          List(JsNumber(r.minValue), JsNumber(r.maxValue))
-        ),
+        "range"   -> {
+          r.maxValue match {
+            case None           =>
+              JsArray(List(JsNumber(r.minValue), JsNull))
+            case Some(maxValue) =>
+              JsArray(List(JsNumber(r.minValue), JsNumber(maxValue)))
+          }
+        },
         "unit_of_measurement" -> r.unitOfMeasurement
       )
     }
