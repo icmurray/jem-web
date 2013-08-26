@@ -6,6 +6,7 @@
   <input type="hidden" name="@field.name" id="@field.id" value="@field.value">
 }
 
+@defining((0xC552 until 0xC582).toSet) { editableAddresses =>
 @main(title = "Configuration") {
 
 <h1>Attached Devices</h1>
@@ -63,7 +64,7 @@
                 @if(table("id").value.get == "1") {
                   @helper.repeat(table("registers"), min=0) { register =>
 
-                    @if(register("address").value.get.toInt < 0xC582) {
+                    @if(editableAddresses.contains(register("address").value.get.toInt)) {
                       <div class="control-group">
                         <label class="control-label">@register("label").value.get:</label>
                         <div class="controls">
@@ -107,4 +108,5 @@
   <button class="pull-right btn btn-primary btn-large" type="submit" name="submit-form" value="create">Save</button>
 }
 
+}
 }
