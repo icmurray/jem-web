@@ -4,6 +4,8 @@ import scala.concurrent.future
 
 import java.io.DataOutputStream
 
+import org.joda.time.DateTime
+
 import play.api._
 import play.api.data._
 import play.api.data.Forms._
@@ -192,6 +194,8 @@ trait RecordedRuns extends Controller
     Enumerator(header) >>> cursor.enumerate.map { js =>
 
       val timestamp = (js \ "timing_info" \ "end").as[Double]
+      val timestampDT = new DateTime((timestamp * 1000.0).asInstanceOf[Long])
+
       val values = (js \ "values").as[List[List[Int]]]
                                   .map((pair: List[Int]) => (pair(0), pair(1)))
                                   .toMap
@@ -200,7 +204,7 @@ trait RecordedRuns extends Controller
         values.get(addr).map(_.toString).getOrElse("")
       }
 
-      csvRow(timestamp.toString :: cells.toList)
+      csvRow(timestampDT.toString() :: cells.toList)
     }
   }
 
