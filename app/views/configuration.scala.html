@@ -1,4 +1,4 @@
-@(form: Form[GatewayConfiguration])(implicit flash: Flash, lang: Lang)
+@(form: Form[domain.SystemConfig])(implicit flash: Flash, lang: Lang)
 
 @import views.helper.bootstrap2._
 
@@ -38,8 +38,8 @@
           <h4>Unit: @device("unit").value</h4>
 
           <ul class="nav nav-tabs" id="@deviceIdentifier-tabs">
-            <li class="active"><a data-toggle="tab" href="#@deviceIdentifier-basic-tab">Basics</a></li>
-            <li>               <a data-toggle="tab" href="#@deviceIdentifier-range-tab">Gauge Ranges</a></li>
+            <li class="active"><a data-toggle="tab" href="#@deviceIdentifier-basic-tab">Network Configuration</a></li>
+            <li>               <a data-toggle="tab" href="#@deviceIdentifier-range-tab">Register Configuration</a></li>
           </ul>
 
           <div class="tab-content">
@@ -57,44 +57,40 @@
             </div>
 
             <div class="tab-pane" id="@deviceIdentifier-range-tab">
-              @helper.repeatWithIndex(device("tables"), min=0) { case (table, tableIndex) =>
 
-                @hidden(table("id"))
-                @hidden(table("label"))
-                @if(table("id").value.get == "1") {
-                  @helper.repeat(table("registers"), min=0) { register =>
-
-                    @if(editableAddresses.contains(register("address").value.get.toInt)) {
-                      <div class="control-group">
-                        <label class="control-label">@register("label").value.get:</label>
-                        <div class="controls">
-                          <div class="input-append input-prepend">
-                            @helper.inputText(register("min"), 'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
-                            <span class="add-on">to</span>
-                            @helper.inputText(register("max"), 'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
-                            <span class="add-on">@register("unitOfMeasurement").value.get</span>
-                          </div>
-                        </div>
+              <div class="control-group">
+                <label class="control-label">Maximum Current:</label>
+                <div class="controls">
+                    <div class="input-append input-prepend">
+                      @helper.inputText(device("maxCurrent"),
+                                        'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
+                        <span class="add-on">mA</span>
                       </div>
-                    } else {
-                      @hidden(register("min"))
-                      @hidden(register("max"))
-                    }
+                  </div>
+              </div>
 
-                    @hidden(register("address"))
-                    @hidden(register("label"))
-                    @hidden(register("unitOfMeasurement"))
-                  }
-                } else {
-                  @helper.repeat(table("registers"), min=0) { register =>
-                    @hidden(register("address"))
-                    @hidden(register("label"))
-                    @hidden(register("min"))
-                    @hidden(register("max"))
-                    @hidden(register("unitOfMeasurement"))
-                  }
-                }
-              }
+              <div class="control-group">
+                <label class="control-label">Maximum Voltage:</label>
+                <div class="controls">
+                    <div class="input-append input-prepend">
+                      @helper.inputText(device("maxVoltage"),
+                                        'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
+                        <span class="add-on">V/100</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="control-group">
+                <label class="control-label">Maximum Power:</label>
+                <div class="controls">
+                    <div class="input-append input-prepend">
+                      @helper.inputText(device("maxPower"),
+                                        'class -> "input-small")(views.helper.simpleTableFieldConstructor, lang)
+                        <span class="add-on">kVA(r) / 100</span>
+                      </div>
+                  </div>
+              </div>
+
             </div>
           </div>
         </div>

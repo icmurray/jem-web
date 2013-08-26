@@ -79,7 +79,8 @@ trait Configuration extends Controller
   def index = Action { implicit request =>
     Async {
       systemService.attachedDevices.map { gateways =>
-        val form = attachedDevicesForm.fill(GatewayConfiguration(gateways))
+        val gatewayConfigs = gateways.map(GatewayConfig.apply)
+        val form = systemConfigForm.fill(SystemConfig(gatewayConfigs))
         Ok(views.html.configuration(form))
       } recover {
         case t => backendIsDownResponse
@@ -89,15 +90,24 @@ trait Configuration extends Controller
 
   def update = Action { implicit request =>
     Async {
-      attachedDevicesForm.bindFromRequest.fold(
+      systemConfigForm.bindFromRequest.fold(
+
         formErrors => future {
           BadRequest(views.html.configuration(formErrors))
         },
+
         formData   => {
-          systemService.updateAttachedDevices(formData.gateways).map { _ =>
-            Redirect(routes.Configuration.index).flashing (
-              "success" -> "Successfully updated configuration."
-            )
+
+          systemService.attachedDevices.map { gateways =>
+            gateways.zip(formData.gateways).map { case (gw, gwConfig) =>
+              gwConfig.updateGateway(gw)
+            }
+          }.flatMap { gateways =>
+            systemService.updateAttachedDevices(gateways).map { _ =>
+              Redirect(routes.Configuration.index).flashing (
+                "success" -> "Successfully updated configuration."
+              )
+            }
           } recover {
             case t => backendIsDownResponse
           }
