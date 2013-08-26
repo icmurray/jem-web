@@ -61,7 +61,7 @@ function writeToScreen(address, value) {
 
         var gauge = Jem.realtime.gauges[address];
         //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
-				gauge.set(value)
+        gauge.set(value);
         //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
@@ -84,7 +84,8 @@ function writeToScreen(address, value) {
       if($(meterDiv).data("register-max-value")) {
         gauge.maxValue = $(meterDiv).data("register-max-value");
       } else {
-        gauge.maxValue = Math.max(value, $(meterDiv).data("register-min-value")) * 2.0
+        var minValue = $(meterDiv).data("register-min-value");
+        gauge.maxValue = Math.max(value, minValue+5) * 2.0
       }
 
       gauge.minValue = $(meterDiv).data("register-min-value");
