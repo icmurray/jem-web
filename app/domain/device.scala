@@ -16,7 +16,6 @@ case class Table(
     registers: List[Register]) {
 
   val friendlyName = label getOrElse s"Table ${id}"
-
 }
 
 case class Device(
@@ -26,8 +25,15 @@ case class Device(
     tables: List[Table]) {
 
   val friendlyName = label getOrElse s"Unit ${unit}"
-
 }
+
+case class DeviceConfig(
+    unit: Int,
+    makeModel: String,
+    label: Option[String],
+    maxCurrent: Int,
+    maxVoltage: Int,
+    maxPower: Int)
 
 case class Gateway(
     host: String,
@@ -36,5 +42,13 @@ case class Gateway(
     devices: List[Device]) {
 
   val friendlyName = label getOrElse s"${host}:${port}"
-
 }
+
+case class GatewayConfig(
+    host: String,
+    port: Int,
+    label: Option[String],
+    devices: List[DeviceConfig])
+
+case class SystemConfig(
+    gateways: List[GatewayConfig])

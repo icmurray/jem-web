@@ -10,12 +10,35 @@ import play.api.mvc._
 import play.api.Play.current
 
 import domain.{Gateway, Device, Table, Register}
+import domain.{DeviceConfig, GatewayConfig, SystemConfig}
 import service.SystemService
 
 case class GatewayConfiguration(gateways: List[Gateway])
 
 trait Configuration extends Controller
                     with ControllerUtilities {
+
+  val systemConfigForm = Form(
+    mapping(
+      "gateways" -> list(
+        mapping(
+          "host"    -> text,
+          "port"    -> number,
+          "label"   -> optional(text),
+          "devices" -> list(
+            mapping(
+              "unit"       -> number,
+              "type"       -> text,
+              "label"      -> optional(text),
+              "maxCurrent" -> number,
+              "maxVoltage" -> number,
+              "maxPower"   -> number
+            )(DeviceConfig.apply)(DeviceConfig.unapply)
+          )
+        )(GatewayConfig.apply)(GatewayConfig.unapply)
+      )
+    )(SystemConfig.apply)(SystemConfig.unapply)
+  )
 
   val attachedDevicesForm = Form(
     mapping(
