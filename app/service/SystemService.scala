@@ -113,7 +113,8 @@ object SystemService extends SystemService {
 
   implicit private val systemStatusReads: Reads[SystemStatus] = (
     (__ \ "running").read[Boolean] ~
-    (__ \ "active_recordings").read[List[String]]
+    (__ \ "active_recordings").read[List[String]] ~
+    (__ \ "now").read[Long]
   )(SystemStatus)
 
   implicit private val registerWrites = new Writes[Register] {

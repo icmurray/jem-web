@@ -44,18 +44,23 @@ object Application extends Controller
 
   def realtime = Action { implicit r: RequestHeader =>
     Async {
-  
-      systemService.currentRecording.map { recordingO =>
-        Ok(views.html.realtime(recordingO))
-      } recover {
+
+      val currentRecordingF = systemService.currentRecording
+      val statusF = systemService.status
+
+      (for {
+        recordingO <- currentRecordingF
+        status     <- statusF
+      } yield Ok(views.html.realtime(recordingO, status))) recover {
         case t => backendIsDownResponse
       }
     }
   }
 
-  def watchRealtimeStream = WebSocket.using[JsValue] { request =>
+  def watchRealtimeStream(from: Long) = WebSocket.using[JsValue] { request =>
+
     // Enumerates the capped collection
-    val now = new DateTime()
+    val now = new DateTime(from * 1000)
 
     val query = Json.obj(
       "timing_info.end" -> Json.obj(
