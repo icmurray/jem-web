@@ -174,7 +174,9 @@ trait RecordedRuns extends Controller
 
     val registers = table.registers.sortBy(_.address)
     val columnToRegisterAddress = registers.map(_.address).zipWithIndex.map(_.swap).toMap
-    val header = csvRow("timestamp" :: registers.map(_.friendlyName.toString))
+    val header = csvRow("timestamp" :: registers.map { register =>
+      s"${register.friendlyName.toString} [${register.address}]"
+    })
 
     val query = Json.obj(
       "device.gateway.host" -> gw.host,
