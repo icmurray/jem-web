@@ -59,6 +59,8 @@ case class DeviceConfig(
         (0, Some(maxVoltage))
       } else if (currentAddresses contains r.address) {
         (0, Some(maxCurrent))
+      } else if (apparentPowerAddresses contains r.address) {
+        (0, Some(maxPower))
       } else if (powerAddresses contains r.address) {
         (-maxPower, Some(maxPower))
       } else {
@@ -84,10 +86,12 @@ object DeviceConfig {
 
   private val voltageAddresses = (0xC552 to 0xC55C by 2).toSet
   private val currentAddresses = (0xC560 to 0xC566 by 2).toSet
+  private val apparentPowerAddresses = Set(0xC56C, 0xC57C, 0xC57E, 0xC580)
   private val powerAddresses: Set[Int] = {
     (0xC568 to 0xC56C by 2).toSet ++
     (0xC570 to 0xC580 by 2).toSet
   }
+  private val nonApparentPowerAddresses = powerAddresses -- apparentPowerAddresses
 
   private def getRegisterValue(address: Int)(device: Device): Option[Int] = {
     for {
