@@ -81,7 +81,6 @@ object Application extends Controller
     
 
     val in = Iteratee.ignore[JsValue].mapDone { _ =>
-      println("DISCONNECTED!")
       cursor.close()
     }
 
