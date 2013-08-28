@@ -421,15 +421,15 @@ class CornerGauge extends Gauge
 		@configPercentColors()
 
 		# TODO: from options...
-		@majorTickWidth = 4
-		@majorTickLength = 10
+		@majorTickWidth = 8
+		@majorTickLength = 20
 		@majorTicks = 4
-		@majorTickLabelWidth = 20
-		@minorTickWidth = 1
-		@minorTickLength = 5
+		@majorTickLabelWidth = 40
+		@minorTickWidth = 2
+		@minorTickLength = 10
 		@minorTicks = 4
 
-		@paddingBottom = @majorTickWidth / 2
+		@paddingBottom = Math.max(@majorTickWidth / 2, @options.pointer.strokeWidth * @canvas.height)
 		@paddingRight  = Math.max(@majorTickWidth / 2, @majorTickLabelWidth)
 
 		@radius = Math.min(@canvas.width - @paddingRight,
@@ -506,7 +506,7 @@ class CornerGauge extends Gauge
 
     if @unitLabel != null && @unitLabel != ""
       oldFont = @ctx.font
-      @ctx.font = "bold 16px sans-serif"
+      @ctx.font = "bold 14px sans-serif"
       @ctx.fillText(@unitLabel, 0, 16)
       @ctx.font = oldFont
 

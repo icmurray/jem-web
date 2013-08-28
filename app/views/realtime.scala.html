@@ -27,17 +27,17 @@
     @for((gateway, device) <- pair) {
       <div class="well span@(12/pair.length)">
         <h4>@gateway.friendlyName | @device.friendlyName</h4>
-        @for(registerRow <- registersOf(device).grouped(12 / pair.length)) {
+        @for(registerRow <- registersOf(device).grouped(6 / pair.length)) {
           <div class="row-fluid">
           @for(register <- registerRow) {
-            <div class="span@(pair.length) keep-side-by-side meter"
+            <div class="span@(pair.length * 2) keep-side-by-side meter"
                  data-register-address="@gateway.host.replace('.', '-')-@gateway.port-@device.unit-@register.address"
                  data-register-unit-of-measurement="@register.unitOfMeasurement"
                  data-register-min-value="@register.minValue"
                  data-register-max-value="@register.maxValue">
-              <canvas class="gauge" width="100" height="100"></canvas>
-              <h6 class="text-center register-address-label">@register.friendlyName</h6>
+              <canvas class="gauge" width="200" height="200"></canvas>
               <p class="text-center register-value-label">No Value</p>
+              <h6 class="text-center register-address-label">@register.friendlyName</h6>
             </div>
           }
           </div>

@@ -11,7 +11,7 @@ lines: 12, // The number of lines to draw
        lineWidth: 0.5, // The line thickness
        pointer: {
 length: 0.9, // The radius of the inner circle
-        strokeWidth: 0.035, // The rotation offset
+        strokeWidth: 0.025, // The rotation offset
         color: '#000000' // Fill color
        },
 colorStart: '#11CF2A',   // Colors
