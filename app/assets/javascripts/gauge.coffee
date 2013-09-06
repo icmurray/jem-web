@@ -479,6 +479,7 @@ class CornerGauge extends Gauge
 		@ctx.stroke()
 
 		if text != null
+			@ctx.font = "24px sans-serif"
 			if @ctx.measureText(text).width < @canvas.width - textX
 				@ctx.fillText(text, textX, textY, @canvas.width - textX)
 
@@ -506,7 +507,7 @@ class CornerGauge extends Gauge
 
     if @unitLabel != null && @unitLabel != ""
       oldFont = @ctx.font
-      @ctx.font = "bold 14px sans-serif"
+      @ctx.font = "bold 22px sans-serif"
       @ctx.fillText(@unitLabel, 0, 16)
       @ctx.font = oldFont
 
