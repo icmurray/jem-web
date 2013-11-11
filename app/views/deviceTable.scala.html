@@ -1,0 +1,73 @@
+@(gw: domain.Gateway, device: domain.Device)
+
+@deviceId(gw: domain.Gateway, device: domain.Device) = @{
+  gw.host.replace('.', '-') + "-" + gw.port + "-" + device.unit
+}
+
+@digitalReading(address: Int, label: String) = {
+  <div class="row">
+    <div class="span8">
+      <p class="text-right register-value-label"
+          data-register-address="@deviceId(gw, device)-@address">
+        No Value
+      </p>
+    </div>
+    <div class="span8">
+      <p>@label</p>
+    </div>
+  </div>
+}
+
+@analogueReading(address: Int) = {
+  <div class="span2 meter"
+       data-register-address="@deviceId(gw, device)-@address"
+       data-register-unit-of-measure="Unit"
+       data-register-min-value="0"
+       data-register-max-value="100">
+    <canvas class="gauge" width="200" height="200"></canvas>
+<!--<canvas class="chart" width="200" height="60"></canvas>-->
+    <p class="text-center register-value-label"
+       data-register-address="@deviceId(gw, device)-@address">No Value</p>
+  </div>
+}
+
+@lineRow(index: Int, registers: Seq[Int]) = {
+  <div class="row">
+    <div class="span2"><h4 class="text-right">L@index</h4></div>
+    @for(address <- registers) { @analogueReading(address) }
+  </div>
+}
+
+<div class="row">
+  <div class="span2"></div>
+  <div class="span2"><h4 class="text-center">L-N Voltages</h4></div>
+  <div class="span2"><h4 class="text-center">L-L Voltages</h4></div>
+  <div class="span2"><h4 class="text-center">Currents</h4></div>
+  <div class="span2"><h4 class="text-center">Power</h4></div>
+  <div class="span2"><h4 class="text-center">kVA</h4></div>
+  <div class="span2"><h4 class="text-center">kVAr</h4></div>
+  <div class="span2"><h4 class="text-center">PowerFactor</h4></div>
+</div>
+
+@lineRow(1, List(0xC558, 0xC552, 0xC560, 0xC570, 0xC57C, 0xC576, 0xC582))
+@lineRow(2, List(0xC55A, 0xC554, 0xC562, 0xC572, 0xC57E, 0xC578, 0xC584))
+@lineRow(3, List(0xC55C, 0xC556, 0xC564, 0xC574, 0xC580, 0xC57A, 0xC586))
+
+<div class="row">
+  <div class="span2"></div>
+  <div class="span2">
+    <div class="row">
+      @digitalReading(0xC652, "KWh +")
+      @digitalReading(0xC654, "KVArh +")
+      @digitalReading(0xC656, "KVAh")
+      @digitalReading(0xC65A, "KVArh -")
+      @digitalReading(0xC658, "KWh -")
+    </div>
+  </div>
+  @analogueReading(0xC55E)
+  @analogueReading(0xC566)
+  @analogueReading(0xC568)
+  @analogueReading(0xC56A)
+  @analogueReading(0xC56C)
+  @analogueReading(0xC56E)
+</div>

@@ -51,7 +51,7 @@ object Application extends Controller
       (for {
         recordingO <- currentRecordingF
         status     <- statusF
-      } yield Ok(views.html.realtime(recordingO, status))) recover {
+      } yield Ok(views.html.realtimeDevices(recordingO, status))) recover {
         case t => backendIsDownResponse
       }
     }
