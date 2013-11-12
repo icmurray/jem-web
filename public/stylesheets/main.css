@@ -2,6 +2,12 @@
   width: 100%;
 }
 
+div.meter {
+  border-style: solid;
+  border-color: black;
+  margin-top: 1px;
+}
+
 @media all and (max-width: 767px)  {
   .span6.keep-side-by-side {
     float: left !important;
