@@ -4,6 +4,7 @@ Jem.realtime = Jem.realtime || {};
 Jem.realtime.valueLabels = {};
 Jem.realtime.gauges = {};
 Jem.realtime.charts = {};
+Jem.realtime.scales = {};
 
 var gaugeOpts = {
 lines: 12, // The number of lines to draw
@@ -57,11 +58,12 @@ function writeToScreen(address, value) {
 
     if (address in Jem.realtime.valueLabels) {
       if(Jem.realtime.valueLabels[address]) {
-        Jem.realtime.valueLabels[address].innerHTML = value;
+        var scale = Jem.realtime.scales[address];
+        Jem.realtime.valueLabels[address].innerHTML = (value * scale).toPrecision(2);
 
         var gauge = Jem.realtime.gauges[address];
         //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
-        gauge.set(value);
+        gauge.set(value * scale);
         //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
@@ -73,22 +75,25 @@ function writeToScreen(address, value) {
         return;
       }
 
+      var scale = $(meterDiv).data("register-scale");
+      Jem.realtime.scales[address] = scale;
+
       var valueLabel = $(meterDiv).children('.register-value-label')[0];
       Jem.realtime.valueLabels[address] = valueLabel;
-      Jem.realtime.valueLabels[address].innerHTML = value;
+      Jem.realtime.valueLabels[address].innerHTML = ("%.4f", value * scale).toPrecision(2);
 
       var gauge = new CornerGauge(gaugeCanvas).setOptions(gaugeOpts);
       Jem.realtime.gauges[address] = gauge;
 
       // Allow for open-ended max values
       if($(meterDiv).data("register-max-value")) {
-        gauge.maxValue = $(meterDiv).data("register-max-value");
+        gauge.maxValue = $(meterDiv).data("register-max-value") * scale;
       } else {
-        var minValue = $(meterDiv).data("register-min-value");
-        gauge.maxValue = Math.max(value, minValue+5) * 2.0
+        var minValue = $(meterDiv).data("register-min-value") * scale;
+        gauge.maxValue = Math.max(value, minValue+5) * 2.0;
       }
 
-      gauge.minValue = $(meterDiv).data("register-min-value");
+      gauge.minValue = $(meterDiv).data("register-min-value") * scale;
       gauge.unitLabel = $(meterDiv).data("register-unit-of-measurement");
 
       // By setting the animation speed so high, we don't try to animate
@@ -102,7 +107,7 @@ function writeToScreen(address, value) {
       }
 
       //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
-			gauge.set(value);
+			gauge.set(value * scale);
 
 
 

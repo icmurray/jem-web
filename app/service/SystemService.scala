@@ -55,7 +55,7 @@ object SystemService extends SystemService {
     (__ \ "range")(0).read[Int] ~
     (__ \ "range")(1).read[Option[Int]] ~
     (__ \ "unit_of_measurement").read[Option[String]]
-  )(Register)
+  )(Register.apply _)
 
   implicit private val tableReads: Reads[Table] = (
     (__ \ "id").read[Int] ~

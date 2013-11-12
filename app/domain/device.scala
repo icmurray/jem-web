@@ -8,7 +8,32 @@ case class Register(
     unitOfMeasurement: Option[String]) {
 
   val friendlyName = label getOrElse label.toString
+
+  def scale = Register.scales.get(address).getOrElse(1.0)
+  def scaledUnitOfMeasurement = {
+    Register.scaledUnitOfMeasurement.get(address)
+            .map(Some(_))
+            .getOrElse(unitOfMeasurement)
+  }
 }
+
+object Register {
+  val scales = Map(
+    // Voltages
+    (0xC558 -> 1/100.0), (0xC552 -> 1/100.0), (0xC55A -> 1/100.0),
+    (0xC554 -> 1/100.0), (0xC55C -> 1/100.0), (0xC556 -> 1/100.0))
+
+  def scaledUnitOfMeasurement = Map(
+    // Voltages
+    (0xC558 -> "V"), (0xC552 -> "V"), (0xC55A -> "V"),
+    (0xC554 -> "V"), (0xC55C -> "V"), (0xC556 -> "V"))
+}
+
+
+
+//0xC558, 0xC552, 0xC560, 0xC570, 0xC57C, 0xC576, 0xC582
+//0xC55A, 0xC554, 0xC562, 0xC572, 0xC57E, 0xC578, 0xC584
+//0xC55C, 0xC556, 0xC564, 0xC574, 0xC580, 0xC57A, 0xC586
 
 case class Table(
     id: Int,
