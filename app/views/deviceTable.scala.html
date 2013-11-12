@@ -19,21 +19,25 @@
 }
 
 @analogueReading(address: Int) = {
-  <div class="span2 meter"
-       data-register-address="@deviceId(gw, device)-@address"
-       data-register-unit-of-measure="Unit"
-       data-register-min-value="0"
-       data-register-max-value="100">
-    <canvas class="gauge" width="200" height="200"></canvas>
-<!--<canvas class="chart" width="200" height="60"></canvas>-->
-    <p class="text-center register-value-label"
-       data-register-address="@deviceId(gw, device)-@address">No Value</p>
-  </div>
+  @defining(device.register(address).get) { register =>
+    <div class="span2 meter"
+         data-register-address="@deviceId(gw, device)-@address"
+         data-register-unit-of-measurement="@register.unitOfMeasurement"
+         data-register-min-value="@register.minValue"
+         data-register-max-value="@register.maxValue">
+      <canvas class="gauge" width="200" height="200"></canvas>
+  <!--<canvas class="chart" width="200" height="60"></canvas>-->
+      <p class="text-center register-value-label"
+         data-register-address="@deviceId(gw, device)-@address">No Value</p>
+    </div>
+  }
 }
 
 @lineRow(index: Int, registers: Seq[Int]) = {
   <div class="row">
-    <div class="span2"><h4 class="text-right">L@index</h4></div>
+    <div class="span2">
+      <h4 class="text-right">L@index</h4>
+    </div>
     @for(address <- registers) { @analogueReading(address) }
   </div>
 }

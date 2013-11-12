@@ -25,6 +25,15 @@ case class Device(
     tables: List[Table]) {
 
   val friendlyName = label getOrElse s"Unit ${unit}"
+
+  lazy val registers: Map[Int, Register] = {
+    (for {
+      table <- tables
+      register <- table.registers
+    } yield(register.address, register)).toMap
+  }
+
+  def register(address: Int): Option[Register] = registers.get(address)
 }
 
 case class DeviceConfig(

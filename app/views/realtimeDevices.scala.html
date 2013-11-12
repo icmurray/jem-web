@@ -29,7 +29,7 @@
     <ul class="nav nav-tabs">
       @for(((gw, device), idx) <- devicesOf(recording.get.gateways).zipWithIndex) {
         <li @if(idx == 0) {class="active"}>
-          <a href="#device-@deviceId(gw, device)" data-toggle="tab">@device.label</a>
+          <a href="#device-@deviceId(gw, device)" data-toggle="tab">@device.friendlyName</a>
         </li>
       }
     </ul>
