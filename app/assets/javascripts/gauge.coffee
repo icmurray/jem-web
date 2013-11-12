@@ -496,7 +496,7 @@ class CornerGauge extends Gauge
 		for majorTick in [0..@majorTicks]
 
 			angle = majorTick * majorAngle
-			value = Math.round(@minValue + (@maxValue - @minValue) * majorTick / @majorTicks)
+			value = (@minValue + (@maxValue - @minValue) * majorTick / @majorTicks).toPrecision(3)
 
 			@renderTick(angle, @majorTickWidth, @majorTickLength, ""+value)
 
