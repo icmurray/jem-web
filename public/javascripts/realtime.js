@@ -5,6 +5,7 @@ Jem.realtime.valueLabels = {};
 Jem.realtime.gauges = {};
 Jem.realtime.charts = {};
 Jem.realtime.scales = {};
+Jem.realtime.pfs    = {};
 
 var gaugeOpts = {
 lines: 12, // The number of lines to draw
@@ -54,12 +55,30 @@ function onMessage(evt) {
 function onError(evt) {}
 function doSend(message) {}
 
+Jem.realtime.pfLabel = function(value) {
+  if (value >= 0.999) {
+    return "";
+  } else if(value >= 0.0) {
+    return " lagging";
+  } else {
+    return " leading";
+  }
+};
+
 function writeToScreen(address, value) {
 
     if (address in Jem.realtime.valueLabels) {
       if(Jem.realtime.valueLabels[address]) {
+	      var isPF = Jem.realtime.pfs[address];
         var scale = Jem.realtime.scales[address];
-        Jem.realtime.valueLabels[address].innerHTML = (value * scale).toPrecision(2);
+
+        if (isPF) {
+          label = Jem.realtime.pfLabel(value * scale);
+          value = Math.abs(value);
+          Jem.realtime.valueLabels[address].innerHTML = (value * scale).toPrecision(5) + label;
+        } else {
+          Jem.realtime.valueLabels[address].innerHTML = (value * scale).toPrecision(5);
+        }
 
         var gauge = Jem.realtime.gauges[address];
         //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
@@ -78,9 +97,19 @@ function writeToScreen(address, value) {
       var scale = $(meterDiv).data("register-scale");
       Jem.realtime.scales[address] = scale;
 
+      var isPF = $(meterDiv).data("register-is-pf");//=== "true";
+      Jem.realtime.pfs[address] = isPF;
+
       var valueLabel = $(meterDiv).children('.register-value-label')[0];
       Jem.realtime.valueLabels[address] = valueLabel;
-      Jem.realtime.valueLabels[address].innerHTML = ("%.4f", value * scale).toPrecision(2);
+
+      if(isPF) {
+        label = Jem.realtime.pfLabel(value * scale);
+        value = Math.abs(value);
+        Jem.realtime.valueLabels[address].innerHTML = (value * scale).toPrecision(5) + label;
+      } else {
+        Jem.realtime.valueLabels[address].innerHTML = ("%.4f", value * scale).toPrecision(5);
+      }
 
       var gauge = new CornerGauge(gaugeCanvas).setOptions(gaugeOpts);
       Jem.realtime.gauges[address] = gauge;

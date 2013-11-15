@@ -4,6 +4,12 @@
   gw.host.replace('.', '-') + "-" + gw.port + "-" + device.unit
 }
 
+@isPowerFactor(register: domain.Register) = @{
+  Set(
+    0xC582, 0xC584, 0xC586, 0xC56E
+  ) contains register.address
+}
+
 @digitalReading(address: Int, label: String) = {
   <div class="row">
     <div class="span8">
@@ -24,6 +30,7 @@
          data-register-address="@deviceId(gw, device)-@address"
          data-register-unit-of-measurement="@register.scaledUnitOfMeasurement"
          data-register-scale="@register.scale"
+         data-register-is-pf="@isPowerFactor(register)"
          data-register-min-value="@register.minValue"
          data-register-max-value="@register.maxValue">
       <canvas class="gauge" width="200" height="200"></canvas>
