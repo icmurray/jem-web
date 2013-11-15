@@ -122,7 +122,11 @@ function writeToScreen(address, value) {
         gauge.maxValue = Math.max(value, minValue+5) * 2.0;
       }
 
-      gauge.minValue = $(meterDiv).data("register-min-value") * scale;
+      if (isPF) {
+        gauge.minValue = 0.0;
+      } else {
+        gauge.minValue = $(meterDiv).data("register-min-value") * scale;
+      }
       gauge.unitLabel = $(meterDiv).data("register-unit-of-measurement");
 
       // By setting the animation speed so high, we don't try to animate
