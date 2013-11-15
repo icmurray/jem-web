@@ -8,7 +8,65 @@ case class Register(
     unitOfMeasurement: Option[String]) {
 
   val friendlyName = label getOrElse label.toString
+
+  def scale = Register.scales.get(address).getOrElse(1.0)
+  def scaledUnitOfMeasurement = {
+    Register.scaledUnitOfMeasurement.get(address)
+            .map(Some(_))
+            .getOrElse(unitOfMeasurement)
+  }
 }
+
+object Register {
+  val scales = Map(
+    // Voltages
+    (0xC558 -> 1/100.0), (0xC552 -> 1/100.0), (0xC55A -> 1/100.0),
+    (0xC554 -> 1/100.0), (0xC55C -> 1/100.0), (0xC556 -> 1/100.0),
+
+    // Current
+    (0xC560 -> 1/1000.0), (0xC562 -> 1/1000.0), (0xC564 -> 1/1000.0), (0xC566 -> 1/1000.0),
+
+    // Power
+    (0xC570 -> 1/100.0), (0xC57C -> 1/100.0), (0xC576 -> 1/100.0),
+    (0xC572 -> 1/100.0), (0xC57E -> 1/100.0), (0xC578 -> 1/100.0),
+    (0xC574 -> 1/100.0), (0xC580 -> 1/100.0), (0xC57A -> 1/100.0),
+    (0xC568 -> 1/100.0), (0xC56A -> 1/100.0), (0xC56C -> 1/100.0),
+
+    // Power factors
+    (0xC582 -> 1/1000.0), (0xC584 -> 1/1000.0), (0xC586 -> 1/1000.0), (0xC56E -> 1/1000.0),
+  
+    // Frequency
+    (0xC55E -> 1/100.0)
+  )
+
+
+  def scaledUnitOfMeasurement = Map(
+    // Voltages
+    (0xC558 -> "V"), (0xC552 -> "V"), (0xC55A -> "V"),
+    (0xC554 -> "V"), (0xC55C -> "V"), (0xC556 -> "V"),
+
+    // Current
+    (0xC560 -> "A"), (0xC562 -> "A"), (0xC564 -> "A"), (0xC566 -> "A"),
+
+    // Power
+    (0xC570 -> "kW"), (0xC57C -> "kVA"), (0xC576 -> "kVAr"),
+    (0xC572 -> "kW"), (0xC57E -> "kVA"), (0xC578 -> "kVAr"),
+    (0xC574 -> "kW"), (0xC580 -> "kVA"), (0xC57A -> "kVAr"),
+    (0xC568 -> "kW"), (0xC56C -> "kVA"), (0xC56A -> "kVAr"),
+
+    // Power factors
+    (0xC582 -> ""), (0xC584 -> ""), (0xC586 -> ""), (0xC56E -> ""),
+  
+    // Frequency
+    (0xC55E -> "Hz")
+  )
+}
+
+
+
+//0xC558, 0xC552, 0xC560, 0xC570, 0xC57C, 0xC576, 0xC582
+//0xC55A, 0xC554, 0xC562, 0xC572, 0xC57E, 0xC578, 0xC584
+//0xC55C, 0xC556, 0xC564, 0xC574, 0xC580, 0xC57A, 0xC586
 
 case class Table(
     id: Int,
@@ -25,6 +83,15 @@ case class Device(
     tables: List[Table]) {
 
   val friendlyName = label getOrElse s"Unit ${unit}"
+
+  lazy val registers: Map[Int, Register] = {
+    (for {
+      table <- tables
+      register <- table.registers
+    } yield(register.address, register)).toMap
+  }
+
+  def register(address: Int): Option[Register] = registers.get(address)
 }
 
 case class DeviceConfig(

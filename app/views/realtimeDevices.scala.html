@@ -1,0 +1,65 @@
+@(recording: Option[domain.Recording], status: domain.SystemStatus)(implicit r: RequestHeader, flash: Flash)
+
+@devicesOf(gateways: List[domain.Gateway]) = @{
+  for {
+    gateway <- gateways
+    device  <- gateway.devices
+    if device.tables != Nil
+  } yield (gateway, device)
+}
+
+@registersOf(device: domain.Device) = @{
+  for {
+    table <- device.tables
+    if Set(1,2) contains table.id
+    register <- table.registers
+    if (table.id == 1 && (register.address != 0xC550) && (register.address < 0xC588)) ||
+       (table.id == 2 && ((0xC65C to 0xC664) contains register.address))
+  } yield register
+}
+
+@deviceId(gw: domain.Gateway, device: domain.Device) = @{
+  gw.host.replace('.', '-') + "-" + gw.port + "-" + device.unit
+}
+
+@main(title = "Realtime Stream") {
+
+  @if(recording.isDefined) {
+  
+    <ul class="nav nav-tabs">
+      @for(((gw, device), idx) <- devicesOf(recording.get.gateways).zipWithIndex) {
+        <li @if(idx == 0) {class="active"}>
+          <a href="#device-@deviceId(gw, device)" data-toggle="tab">@device.friendlyName</a>
+        </li>
+      }
+    </ul>
+
+    <div class="tab-content">
+      @for(((gw, device), idx) <- devicesOf(recording.get.gateways).zipWithIndex) {
+        <div class="tab-pane @if(idx == 0) {active}" id="device-@deviceId(gw, device)">
+          @deviceTable(gw, device)
+        </div>
+        }
+    </div>
+
+    <script language="javascript" type="text/javascript">
+      var Jem = Jem || {};
+      Jem.realtime = Jem.realtime || {};
+      Jem.realtime.wsUri = "@routes.Application.watchRealtimeStream(status.timestamp).webSocketURL()";
+    </script>
+
+    <script src="@routes.Assets.at("javascripts/handlebars.js")"
+            type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/gauge.js")"
+            type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/smoothie.js")"
+            type="text/javascript"></script>
+    <script src="@routes.Assets.at("javascripts/realtime.js")"
+      type="text/javascript"></script>
+
+  } else {
+    <p>There is no realtime stream of data right now.</p>
+  }
+  
+}
+

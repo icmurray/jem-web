@@ -1,5 +1,15 @@
-.meters canvas {
+.meter canvas {
   width: 100%;
+}
+
+div.meter {
+  border-style: solid;
+  border-color: black;
+  margin-top: 1px;
+}
+
+div.meter.no-border {
+  border-style: none;
 }
 
 @media all and (max-width: 767px)  {
