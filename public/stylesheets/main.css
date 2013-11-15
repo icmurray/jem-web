@@ -8,6 +8,10 @@ div.meter {
   margin-top: 1px;
 }
 
+div.meter.no-border {
+  border-style: none;
+}
+
 @media all and (max-width: 767px)  {
   .span6.keep-side-by-side {
     float: left !important;

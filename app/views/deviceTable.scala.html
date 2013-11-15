@@ -11,17 +11,24 @@
 }
 
 @digitalReading(address: Int, label: String) = {
+  @defining(device.register(address).get) { register =>
   <div class="row">
-    <div class="span8">
-      <p class="text-right register-value-label"
-          data-register-address="@deviceId(gw, device)-@address">
-        No Value
-      </p>
+      <div class="span8 meter no-border"
+           data-register-address="@deviceId(gw, device)-@address"
+           data-register-unit-of-measurement="@register.scaledUnitOfMeasurement"
+           data-register-scale="@register.scale"
+           data-register-is-pf="@isPowerFactor(register)"
+           data-register-min-value="@register.minValue"
+           data-register-max-value="@register.maxValue">
+        <canvas class="gauge" width="200" height="200" style="display: none;"></canvas>
+        <p class="text-right register-value-label"
+           data-register-address="@deviceId(gw, device)-@address">No Value</p>
+     </div>
+     <div class="span8">
+       <p>@label</p>
+     </div>
     </div>
-    <div class="span8">
-      <p>@label</p>
-    </div>
-  </div>
+  }
 }
 
 @analogueReading(address: Int) = {
