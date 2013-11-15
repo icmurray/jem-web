@@ -49,10 +49,10 @@ object Register {
     (0xC560 -> "A"), (0xC562 -> "A"), (0xC564 -> "A"), (0xC566 -> "A"),
 
     // Power
-    (0xC570 -> "kW"), (0xC57C -> "kW"), (0xC576 -> "kW"),
-    (0xC572 -> "kVA"), (0xC57E -> "kVA"), (0xC578 -> "kVA"),
-    (0xC574 -> "kVAr"), (0xC580 -> "kVAr"), (0xC57A -> "kVAr"),
-    (0xC568 -> "kW"), (0xC56A -> "kVA"), (0xC56C -> "kVAr"),
+    (0xC570 -> "kW"), (0xC57C -> "kVA"), (0xC576 -> "kVAr"),
+    (0xC572 -> "kW"), (0xC57E -> "kVA"), (0xC578 -> "kVAr"),
+    (0xC574 -> "kW"), (0xC580 -> "kVA"), (0xC57A -> "kVAr"),
+    (0xC568 -> "kW"), (0xC56C -> "kVA"), (0xC56A -> "kVAr"),
 
     // Power factors
     (0xC582 -> ""), (0xC584 -> ""), (0xC586 -> ""), (0xC56E -> ""),
