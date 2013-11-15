@@ -62,7 +62,7 @@ function writeToScreen(address, value) {
         var gauge = Jem.realtime.gauges[address];
         //gauge.set(Math.min(gauge.maxValue, Math.max(gauge.minValue, value)));
         gauge.set(value);
-        Jem.realtime.charts[address].append(new Date().getTime(), value);
+        //Jem.realtime.charts[address].append(new Date().getTime(), value);
       }
     } else {
       var meterDiv = $('[class~="meter"][data-register-address="' + address + '"]')[0];
@@ -109,29 +109,15 @@ function writeToScreen(address, value) {
       //var chartCanvas = document.createElement("canvas");
       //chartCanvas.width=400;
       //chartCanvas.height=50;
-      var chartCanvas = $(meterDiv).children('canvas.chart')[0];
-      var chart = new SmoothieChart({
-        grid: {
-          strokeStyle: 'rgb(0,125,0)',
-          fillStyle:   'rgb(0,60,0)',
-          lineWidth: 1,
-          millisPerLine: 250,
-          verticalSections: 6
-        },
-        maxValue: gauge.maxValue,
-        minValue: gauge.minValue
-      });
-      chart.streamTo(chartCanvas, 500);
-      var chartLine = new TimeSeries();
-      chart.addTimeSeries(chartLine,
-          {
-            strokeStyle: 'rgb(0, 255, 0)',
-            fillStyle: 'rgba(0, 255, 0, 0.4)',
-            lineWidth: 3
-          }
-      );
-      Jem.realtime.charts[address] = chartLine;
-      chartLine.append(new Date().getTime(), value);
+      //var chart = new SmoothieChart({
+      //  maxValue: 20,
+      //  minValue: 0
+      //});
+      //chart.streamTo(chartCanvas,600);
+      //var chartLine = new TimeSeries();
+      //chart.addTimeSeries(chartLine);
+      //charts[address] = chartLine;
+      //chartLine.append(new Date().getTime(), value);
 
   }
 
